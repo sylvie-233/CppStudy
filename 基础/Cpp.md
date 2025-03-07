@@ -1,7 +1,7 @@
 # Cpp
 
 >
->`C++ 标准库速览：P15`
+>``
 >
 >
 >
@@ -10,6 +10,23 @@
 
 
 ## 基础介绍
+
+
+
+
+
+
+C++ STL 四大类：
+- 算法
+- 容器
+- 仿函数
+- 迭代器
+
+
+
+
+
+
 
 ### g++
 
@@ -24,12 +41,11 @@ g++:
 ## 核心内容
 ```yaml
 std:
-    __builtin:
-        uintptr_t:
-    <algorithm>:
+    <algorithm>: # 算法库
+        sort(): # 排序
     <any>:
     <array>: # c数组封装
-        array<T1,T2>:
+        array:
             iterator:
             []:
                 set(): # 修改元素
@@ -95,7 +111,6 @@ std:
         string:
             iterator: # 迭代器
             npos: # -1索引位置
-            []: # 元素索引
             append():
             at():
             back():
@@ -143,16 +158,21 @@ std:
     <unordered_set>:
     <utility>:
     <variant>:
-    <vector>:
+    <vector>: # 动态数组
+        vector:
+            clear(): # 清空
+            empty(): # 为空判断
+            pop_back(): # 尾部删除
+            push_back(): # 尾部添加
+            resize(): # 扩/缩容
+            size(): # 数组长度
     <version>:
 ```
 ### 数据类型
-
-
-内置变量
 ```yaml
-:
-    __cplusplus:
+Data Types:
+    long long: # 64位整型
+    uintptr_t:
 ```
 
 
@@ -173,13 +193,50 @@ std:
 
 
 
+#### vector
+```c++
+// 初始化长度为100，初始值为0的数组
+vector<int> arr(100, 0);
+
+
+```
+
+动态数组，大小可变
+
+
+#### set
+
+
+#### map
+
+
+
+#### stack
+
+
+
+#### queue
+
+
+
+
+
 
 
 ### 流程控制
+```yaml
+Control Flow:
+    <=>:
+    for ...: # 循环遍历、增强for循环
+```
 
 太空船运算符`<=>`
 
-#### 属性
+
+
+#### Exception Handler
+
+#### Attibute
 
 - `[[likely]]`：分支预测判断
 
@@ -198,7 +255,7 @@ std:
 
 
 
-### 动态内存
+### 智能指针
 
 
 
