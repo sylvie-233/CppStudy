@@ -1,6 +1,6 @@
 # ASM
 
-`小迪x64dbg教程：P24`
+`小迪x64dbg教程：P32`
 
 ## 基础介绍
 
@@ -69,16 +69,34 @@ windows默认加载DLL：
     EFLAGS: # 标志寄存器
 
 指令:
+    add: # 加法
     call: # 函数调用
+    cmp: # sub
+    div: # EDX|EAX
+    idiv:
+    imul:
+    inc:
     jmp: # 直接跳转
     jne: # 不等于0跳转
+    lea: # 取地址
+    mul:
     mov: # 数据移动指令
     nop: # 空指令
     or:
     pop: # 弹出栈
+    popad:
     push: # 推入栈中
+    pushad: # 寄存器全部压栈，保护寄存器、内存现场
     ret: # 函数返回，无条件跳转
+    sub:
+    test: # 0
 ```
+
+SS栈段
+CS代码段
+DS数据段
+ES附加段
+
 
 
 ### EFLAGS
@@ -108,3 +126,4 @@ ESP+4：函数的第一个参数
 函数第一行`push ebp`、`mov ebp, esp`
 
 栈上最上面的两个东西：函数返回地址、旧ebp
+函数调用过程中：ebp指向旧ebp，ebp+4指向返回地址，ebp+8指向第一个参数
