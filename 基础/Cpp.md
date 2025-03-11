@@ -51,7 +51,9 @@ std:
         find():
         is_sorted():
         lower_bound(): # 找到第一个>= value的位置
+        max():
         max_element():
+        min():
         min_element():
         next_permutation():
         nth_element():
@@ -65,7 +67,7 @@ std:
         sort(): # 排序
         stable_sort():
         upper_bound(): # 找到第一个>value的位置
-        unique():
+        unique(): # 去重
     <any>:
     <array>: # c固定数组封装
         array:
@@ -172,7 +174,11 @@ std:
     <memory>:
     <mutex>:
     <num>:
-    <numeric>:
+    <numeric>: # 数学运算
+        acumulate():
+        gcd():
+        iota():
+        lcm():
     <optional>:
     <ostream>:
     <priority_queue>:
@@ -189,6 +195,8 @@ std:
             push():
             size():
     <random>: # 随机数
+        mt19937():
+        random_device():
     <ranges>:
     <ratio>:
     <regex>:
@@ -270,7 +278,10 @@ std:
     <type_traits>:
     <unodered_map>:
     <unordered_set>:
-    <utility>:
+    <utility>: # 工具库
+        pair: # 二元组
+        make_pair():
+        swap():
     <variant>:
     <vector>: # 动态数组
         vector:
