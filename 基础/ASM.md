@@ -1,6 +1,6 @@
 # ASM
 
-`小迪x64dbg教程：P32`
+``
 
 ## 基础介绍
 
@@ -9,8 +9,9 @@
 
 必备工具：
 - x64dbg
-- ce
+- ollydbg
 - ida
+- ce
 
 
 MASM工具
@@ -67,12 +68,17 @@ windows默认加载DLL：
     EDI:
     EIP: # 指令指针寄存器，当前运行地址
     EFLAGS: # 标志寄存器
+    ST0: # 浮点栈（0-7）
+    XMM0: # 浮点寄存器（0-7）
 
 指令:
     add: # 加法
     call: # 函数调用
     cmp: # sub
     div: # EDX|EAX
+    fadd: # 浮点加法运算
+    fld: # 数据压入浮点栈中
+    fstp: # 栈中数据存入内存
     idiv:
     imul:
     inc:
@@ -81,6 +87,7 @@ windows默认加载DLL：
     lea: # 取地址
     mul:
     mov: # 数据移动指令
+    movss:
     nop: # 空指令
     or:
     pop: # 弹出栈
