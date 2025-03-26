@@ -1,6 +1,6 @@
 # VRP
 
-`华为数通路由交换HCNA/HCIA：P21`
+`华为数通路由交换HCNA/HCIA：P29`
 
 ## 基础介绍
 
@@ -14,25 +14,131 @@
 ## 核心内容
 ```yaml
 eNSP:
-    AR:
+    AR: # 路由器
+        aaa: # aaa 认证模式
+            local-aaa-user:
+            local-user:
+                password: # 登录密码
+                    ciper: # 加密
+                privilege: # 权限
+                    level: # 权限级别
+                service-type: # 可用服务 
+                    telnet:
         acl:
         dhcp:
+        dir:
         display:
             arp:
-            interface:
+            http:
+                server:
+            interface: # 显示网络接口
+                brief:
             ip:
+                interface: # 查看 接口 ip
                 routing-table: # 查看路由表
+            mac-address:
+            saved-configuration: # 保存的配置
+            startup: # 查看系统启动配置参数
+            telnet:
+                server:
+                    status:
+            this: # 当前视图的运行配置
+            users: # 登录用户
             version:
-        interface:
+        ftp:
+        interface: # 网络接口
             GigabitEthernet: # x/x/x  进入接口配置模式
                 ip:
                     address: # 配置接口 IP 地址
                     route-static: # 配置静态路由
+        ip:
+            route-static: # 配置 静态路由
         nat:
         ntp-service:
+        quit: # 退出
+        ospf:
+        save: # 保存 系统配置，vrpcfg.zip
+        startup:
+            saved-configuration:
+            system-software:
+        sysname: # 修改设备名称
         system-view:
+        telnet:
+            server:
+                enable:
+        tftp:
+            get:
+        user-interface: # 用户连接接口
+            console:
+            vty:
+                authentication-mode: # 修改认证模式
+                    aaa:
+                    password:
+                set:
+                    authentication:
+                        password: # 设置登录密码
+                user:
+                    privilege: # 设置用户权限
+                        level:
         vlan:
 ```
+![VRP命令行视图](../assets/VRP命令行视图.png)
+- 用户视图
+- 系统视图
+- 接口视图
+- 协议视图
+
+
+
+![VRP命令级别](../assets/VRP命令级别.png)
+- 访问级别
+- 监控级别
+- 配置级别
+- 管理级别
+
+认证级别
+- password密码认证
+- aaa用户名密码认证
+
+
+
+### 交换机
+
+
+
+
+### 路由器
+
+任意两个接口不能配置相同网段的ip
+
+
+
+
+
+路由表
+- 最长匹配原则
+
+路由表来源：
+- 直连路由：路由器接口上的网络
+- 静态路由：管理员手动添加的网络
+- 动态路由：路由器之间动态学习到的网络
+
+等价路由、负载均衡
+
+
+
+
+
+#### RIP
+
+
+
+#### OSTF
+
+
+
+
+
 
 
 
@@ -131,6 +237,8 @@ TTL：生存事件
 ![私网IP地址](../assets/私网IP地址.png)
 
 网络地址、主机地址、广播地址
+单播、广播、组播
+冲突域、广播域
 
 
 ### ARP
