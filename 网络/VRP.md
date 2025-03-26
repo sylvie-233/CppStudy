@@ -1,6 +1,6 @@
 # VRP
 
-`华为数通路由交换HCNA/HCIA：P29`
+`华为数通路由交换HCNA/HCIA：P30`
 
 ## 基础介绍
 
@@ -48,6 +48,7 @@ eNSP:
         ftp:
         interface: # 网络接口
             GigabitEthernet: # x/x/x  进入接口配置模式
+            loopback: # 回环接口
                 ip:
                     address: # 配置接口 IP 地址
                     route-static: # 配置静态路由
@@ -124,6 +125,7 @@ eNSP:
 - 动态路由：路由器之间动态学习到的网络
 
 等价路由、负载均衡
+缺省路由
 
 
 
