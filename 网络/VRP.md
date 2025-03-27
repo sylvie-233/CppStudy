@@ -1,6 +1,6 @@
 # VRP
 
-`华为数通路由交换HCNA/HCIA：P30`
+`华为数通路由交换HCNA/HCIA：P49`
 
 ## 基础介绍
 
@@ -24,7 +24,12 @@ eNSP:
                     level: # 权限级别
                 service-type: # 可用服务 
                     telnet:
-        acl:
+        acl: # 访问控制
+            rule:
+        arp:
+            broadcast: # 允许arp广播
+                enable:
+        bgp:
         dhcp:
         dir:
         display:
@@ -36,7 +41,11 @@ eNSP:
             ip:
                 interface: # 查看 接口 ip
                 routing-table: # 查看路由表
-            mac-address:
+            mac-address: # mac地址表
+            ospf:
+                interface:
+                lsdb: # 链路状态数据库、地图，邻接关系
+                peer: # 查看 ospf邻居，邻居关系
             saved-configuration: # 保存的配置
             startup: # 查看系统启动配置参数
             telnet:
@@ -49,15 +58,48 @@ eNSP:
         interface: # 网络接口
             GigabitEthernet: # x/x/x  进入接口配置模式
             loopback: # 回环接口
+                dot1q:
+                    termination:
+                        vid: # 配置子接口vid
                 ip:
                     address: # 配置接口 IP 地址
                     route-static: # 配置静态路由
+                link-protocol:
         ip:
             route-static: # 配置 静态路由
         nat:
         ntp-service:
         quit: # 退出
         ospf:
+            area: # 区域
+            authentication-mode: # ospf认证
+                md5:
+                ciper:
+            cost: # 开销
+            default-route-advertise: # 发布缺省路由
+            dr-priority: # DR优先级 
+            import-route: # 引入路由
+                direct:
+            router-id: # Rotuer ID
+            timer: # 
+                hello:
+            network: # 区域宣告，加入ospf
+        reset: # 重启进程
+            ospf process:
+        rip: # 开启rip进程，缺省为1
+            filter-policy: # 过滤策略
+            import-route: # 注入路由信息
+            metricin: # 接收rip 跳数增加量，默认0
+            metricout: # 发送rip 跳数增加量，默认1
+            network: # 宣告网络，指定运行rip的接口，无掩码，大类
+            poison-reverse: # 毒性反转
+            silent-interface: # 抑制接口，只收不发rip
+                all:
+            split-horizon: # 水平分隔
+            undo:
+                rip in: # 禁用 接收rip
+                rip out: # 禁用 发送rip
+            version: # 指定版本
         save: # 保存 系统配置，vrpcfg.zip
         startup:
             saved-configuration:
@@ -82,6 +124,61 @@ eNSP:
                     privilege: # 设置用户权限
                         level:
         vlan:
+    LSW:
+        display:
+            gvrp:
+                statistics:
+                status:
+            interface:
+            ip:
+                interface:
+                routing-table:
+            mac-address: # mac地址表
+            port: # 显示 端口
+                vlan:
+            vlan:
+        gvrp:
+            registration: # 
+        interface:
+            g0/0/x:
+                duplex:
+                    full:
+                    half:
+                gvrp:
+                port: 
+                    default:
+                        vlan: # 设置 端口vlan号
+                    hybrid:
+                        pvid:
+                            vlan:
+                        tagged:
+                            vlan:
+                        untagged:
+                            vlan:
+                    link-type: # 设置 端口类型
+                        access:
+                        hybrid:
+                        trunk:
+                    trunk:
+                        allow-pass: # 配置trunk端口允许发送的vlan
+                            vlan:
+                                all:
+                                to:
+                        pvid: # 默认vlan端口号
+                speed: # 接口速率
+                    10:
+                    100:
+                    1000:
+                    auto-negotiation:
+                undo:
+                    negotiation auto: # 关闭 速率协商
+                vlan:
+                    ip:
+                        addr: # vlanif接口，三层交换机
+        stp:
+            disable:
+        vlan:
+            batch: # 批量创建vlan
 ```
 ![VRP命令行视图](../assets/VRP命令行视图.png)
 - 用户视图
@@ -105,13 +202,106 @@ eNSP:
 
 ### 交换机
 
+![分层交换结构](../assets/分层交换结构.png)
+
+MAC地址表
+学习、泛洪、转发、更新
+广播帧、组播帧、单播帧
+默认每条记录保存300秒
+
+
+#### VLAN
+
+vlan核心：
+- 打上tag
+- 剥离tag
+- pvid和允许tag
+
+pc、路由器不能接受带tag的帧
+
+
+
+分隔广播域、灵活构建虚拟工作组
+Vlan范围：0-4095
+不同vlan间设备默认无法通讯，需借助第三层设备才能互通
+
+![VLAN标签](../assets/VLAN标签.png)
+
+
+VLAN链路类型：
+- Access Link：接入链路
+- Trunk Link：中继链路
+
+PVID：端口缺省VLAN
+
+vlan实现原理在于以太网帧的标签
+VLAN端口类型：（路由器叫接口、交换机叫端口）
+- Access：收到数据后会添加 vlan tag，vlan id和pvid必须相同，转发数据前会移除vlan tag
+- Trunk汇聚转发端口，可自定义允许vlan
+    - 收到帧时
+        - 如果该帧不包含Tag,将打上端口的PVID;
+        = 如果该帧包含Tag,则不改变。
+    - 发送帧时，该帧的VLAN ID在Trunk的允许发送列表中：
+        - 若与端口的PVID相同时，则剥离Tag发送；
+        - 若与端口的PVID不同时，则直接发送。
+- Hybrid：标签剥离由命令控制
+
+vlan规划：
+- 基于端口
+- 基于mac地址
+- 基于ip子网
+- 基于协议
+- 基于策略
+
+![VLAN单臂路由](../assets/VLAN单臂路由.png)
+VLAN单臂路由基于出口Trunk和路由器子接口实现
+
+![配置VLAN单臂路由](../assets/配置VLAN单臂路由.png)
+
+
+![三层交换机](../assets/三层交换机.png)
+为每个vlan创建一个vlanif接口作为网关
+
+![三层交换机接路由](../assets/三层交换机接路由.png)
+
+#### GVRP
+
+通用属性注册协议
+实现vlan属性的动态分发、注册、传播
+
+为GARP协议具体实现
+
+
+GARP消息类型：
+- Join：端口加入vlan
+- Leave：端口退出vlan
+- Leave All：注销所有
+
+GVRP注册模式：
+- fixed：
+- forbidden：
+- normal：允许动态、静态注册vlan，同时会发送动态、静态vlan声明消息
+
+
+
+
+
+#### STP
+
+生成树协议
+
+
+
+
+
+#### ACL
 
 
 
 ### 路由器
 
 任意两个接口不能配置相同网段的ip
-
+协议是在接口上运行的
 
 
 
@@ -128,19 +318,123 @@ eNSP:
 缺省路由
 
 
+![动态路由协议](../assets/动态路由协议.png)
+
+路由协议分类：
+- IGP内部网关协议
+- EGP外部网关协议
+- AS自治系统
+- DV距离矢量
+- LV链路状态
+- Classful有类
+- Classless无类
+- 单播路由协议
+- 组播路由协议
 
 
 
 #### RIP
 
+路由信息协议
+基于距离矢量、UDP，目标端口520
+周期性更新
+使用跳数作为衡量到达目的网络的距离，不能超过15跳，经过路由发送时跳数+1
+
+不同的进程号属于不同的数据库
 
 
-#### OSTF
+环路避免、水平分隔：禁用往返发送
+30s触发更新
+毒性反转
 
 
 
 
 
+##### RIPv1
+
+以广播的形式发送
+有类、不支持认证
+
+##### RIPv2
+
+以组播的形式发送
+无类、支持认证
+
+
+
+
+
+#### EIGRP
+
+
+#### IS-IS
+
+
+
+
+
+#### OSPF
+
+开放式最短路径优先协议、网络层协议
+5种数据包，7种路由状态
+
+组播、无类、以开销cost作为度量值
+（224.0.0.5、224.0.0.6）
+触发式更新、通过LAS的形式发布路由
+
+
+区域是以接口为单位来划分的
+每个ospf路由器只维护所在区域的完整链路状态信息
+- 骨干区域：area0
+- 非骨干区域：常规区域
+
+区域路由器类型：（一台路由器可以属于多种类型）
+- IR：内部路由器
+- BR：骨干路由器
+- ABR：区域边界路由器
+- ASBR：自治系统边界路由器
+
+![OSPF工作流程](../assets/OSPF工作流程.png)
+
+LSA泛洪建立连接、SPF算法计算最短路径，并置于路由表中
+Router ID：唯一标识一台OSPF路由器
+每一个运行ospf的接口上，都维护着一个接口Cost（cost计算参考带宽）
+
+
+
+OSPF数据包：
+- 类型
+- Router ID
+- Area ID
+
+
+OSPF数据包类型：（update、ack）
+- Hello：建立邻居
+- Database Description
+- Link-State Request
+- Link-State Update
+- Link-State Acknowledgment
+
+
+![OSPF状态机制](../assets/OSPF状态机制.png)
+- Down
+- Init
+- 2-Way：收到Hello包，形成邻居关系
+- ExStart：决定信息交换时路由器的主从关系
+- Exchange：向邻居发送DD
+- Loading
+- Full：LSDB同步，形成邻接关系
+
+Master网络选举：用于减少邻接关系
+- DR：指定路由器
+- BDR：备份DR
+- DRothers：DRothers之间保持邻居关系，与DR、BDR之间保持邻接关系
+![OSPF_DR选举](../assets/OSPF_DR选举.png)
+
+
+
+#### BGP
 
 
 
@@ -263,3 +557,7 @@ MTU: 46~1500
 - MAC子层
 
 MAC地址：48位、6字节
+
+
+
+### PPP
