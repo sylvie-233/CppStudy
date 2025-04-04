@@ -134,6 +134,7 @@ CMakeLists.txt:
     enable_testing(): # 开启测试
     file(): # 文件操作、赋值变量、递归查找
         APPEND: # 文件追加
+        COPY: # 文件拷贝
         GLOB: # 模糊匹配查找文件
         MAKE_DIRECTORY: # 创建目录
         READ: # 获取文件内容
