@@ -1,7 +1,7 @@
-# Cpp
+# C++
 
 >
->``
+>`每天5分钟了解现代C++新特性：P3`
 >
 >
 >
@@ -69,11 +69,9 @@ std:
         upper_bound(): # 找到第一个>value的位置
         unique(): # 去重
     <any>:
-    <array>: # c固定数组封装
+    <array>: # c固定大小数组封装
         array:
-            iterator:
-            []:
-                set(): # 修改元素
+            iterator: # 迭代器
             at():
             begin():
             fill():
@@ -94,7 +92,18 @@ std:
             to_ullong():
             to_ulong():
     <charconv>:
-    <chrono>:
+    <chrono>: # 时间
+        duration: # 持续时间
+            count():
+        high_resolution_clock: # 常用与计算时间差
+            now():
+        milliseconds:
+        seconds:
+        steady_clock:
+        system_clock:
+            now():
+            to_time_t():
+        duration_cast():
     <codecvt>:
     <compare>:
     <complex>:
@@ -139,7 +148,7 @@ std:
         setprecision(): # 设置小数精度
         setw(): # 指定输出的最小宽度，不足时填充空格
     <ios>:
-    <iostream>:
+    <iostream>: # 输入、输出
         cerr: # 标准异常流
         cin: # 标准输入流
             clear():
@@ -155,7 +164,10 @@ std:
     <istream>:
     <iterator>:
     <latch>:
-    <limits>:
+    <limits>: # 数值范围
+        numeric_limits: # 数值字面量范围
+            max():
+            min():
     <list>:
     <locale>:
     <map>: # 映射
@@ -297,14 +309,12 @@ std:
 ### 数据类型
 ```yaml
 Data Types:
-    long long: # 64位整型
-    uintptr_t:
+    char8_t:
+    char16_t:
+    char32_t:
+    long long: # 64位整型，LL
+    uintptr_t: # 
 ```
-
-
-#### string
-
-字符串
 
 
 #### struct
@@ -312,9 +322,23 @@ Data Types:
 结构体
 
 
+#### string
+
+字符串
+
+
+
+
 #### array
 
 静态大小数组、c数组封装
+
+
+#### stack
+
+
+
+#### queue
 
 
 
@@ -337,11 +361,7 @@ vector<int> arr(100, 0);
 
 
 
-#### stack
 
-
-
-#### queue
 
 
 
@@ -353,6 +373,7 @@ vector<int> arr(100, 0);
 ```yaml
 Control Flow:
     <=>:
+    auto: # 自动类型推断
     for ...: # 循环遍历、增强for循环
 ```
 
@@ -371,6 +392,7 @@ Control Flow:
 
 ### 函数
 
+#### Lambda
 
 
 
@@ -380,6 +402,23 @@ Control Flow:
 
 
 
+
+
+
+### 模块
+
+
+
+#### NameSpace
+
+命名控件
+
+- 内联命名空间 inline namespace
+- 嵌套命名空间简写
+
+
+
+##### Inline NameSpace
 
 
 
