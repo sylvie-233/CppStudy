@@ -1,7 +1,7 @@
 # C++
 
 >
->`每天5分钟了解现代C++新特性：P3`
+>`每天5分钟了解现代C++新特性：P4`
 >
 >
 >
@@ -111,7 +111,9 @@ std:
     <condition_variable>:
     <coroutine>:
     <deque>:
-    <exception>:
+    <exception>: # 异常
+        exception: # 异常基类
+            what():
     <execution>:
     <filesystem>:
     <format>:
@@ -236,6 +238,7 @@ std:
             size():
             top():
     <stdexcept>:
+        runtime_error: # 运行时异常
     <stop_token>:
     <streambuf>:
     <string>: # 字符串
@@ -276,7 +279,7 @@ std:
         stoll():
         to_string(): # 转换为字符串
     <string_view>: # string字符串只读复制，不会申请新内存
-        basic_string_view<>:
+        basic_string_view:
         string_view: # 字符串视图
             data():
             remove_prefix():
@@ -287,7 +290,21 @@ std:
     <tuple>:
     <typeindex>:
     <typeinfo>:
-    <type_traits>:
+    <type_traits>: # 编译时执行类型检测
+        conditional<>: # <T, U, V>,类型选择工具
+        enable_if<>: # 模板特化或者约束模板参数
+        is_callable<>:
+        is_const<>:
+        is_floating_point<>:
+        is_integral<>: # 整数类型
+        is_pointer<>:
+        is_reference<>:
+        is_same<>: # 类型相等is_same<T, U>
+            value: # 比较结果，bool
+        remove_pointer<>: # 移除指针
+            type:
+        remove_reference<>: # 移除引用
+            type:
     <unodered_map>:
     <unordered_set>:
     <utility>: # 工具库
@@ -373,7 +390,8 @@ vector<int> arr(100, 0);
 ```yaml
 Control Flow:
     <=>:
-    auto: # 自动类型推断
+    auto: # 自动类型推断，常用于lambda、函数指针
+    static_cast():
     for ...: # 循环遍历、增强for循环
 ```
 
@@ -382,6 +400,8 @@ Control Flow:
 
 
 #### Exception Handler
+
+
 
 #### Attibute
 
@@ -393,7 +413,37 @@ Control Flow:
 ### 函数
 
 #### Lambda
+```c++
+// 基础lambda声明
+auto greet = []() {
+    std::cout << "Hello, Lambda!" << std::endl;
+};
 
+// 捕获所有变量的引用
+auto sumByReference = [&]() {
+    std::cout << "Sum by reference: " << a + b << std::endl;
+};
+
+// 可变捕获 mutable
+auto modifyX = [x]() mutable {  // 使用 mutable 允许修改捕获的副本
+    x += 5;
+    std::cout << "Modified x: " << x << std::endl;
+};
+```
+
+匿名函数
+- 按值捕获所有变量：`[=]`
+- 按引用捕获所有变量：`[&]`
+
+
+#### Auto Function
+```c++
+auto add(int a, int b) -> int {
+    return a + b;  // 返回类型会被推导为 int
+}
+```
+
+可实现函数类型后置
 
 
 
