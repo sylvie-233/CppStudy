@@ -20,22 +20,32 @@
 
 
 C++ STL 四大类：
-- 算法
-- 容器
-- 仿函数
-- 迭代器
+1. 容器 (Containers)： 容器是用来存储和管理数据的对象，它们定义了数据结构的形式。例如，std::vector、std::list、std::map、std::unordered_map 等。
+    - 顺序容器：如 std::vector、std::deque、std::list 等，数据的存储顺序与插入顺序一致。
+    - 关联容器：如 std::map、std::set、std::unordered_map、std::unordered_set 等，存储数据时会自动进行排序或哈希。
+    - 无序容器：如 std::unordered_map、std::unordered_set，数据存储顺序无关，使用哈希表优化查找速度。
+2. 算法 (Algorithms)： STL 提供了大量的算法，用来处理容器中的数据，算法不依赖于容器类型，但会通过迭代器来访问容器中的元素。例如，排序（std::sort）、查找（std::find）、变换（std::transform）等。
+3. 迭代器 (Iterators)： 迭代器是 STL 中用于遍历容器的对象，提供了容器元素的访问和操作接口。迭代器可以与算法结合使用，从而在容器上执行操作而不暴露容器的具体实现。
+    - 常见的迭代器类型包括 input_iterator、output_iterator、forward_iterator、bidirectional_iterator 和 random_access_iterator。
+4. 函数对象和适配器 (Function Objects and Adapters)： 函数对象是可调用的对象，可以像函数一样使用。STL 中有许多标准的函数对象，例如 std::less、std::greater 等，它们通常与算法一起使用。
+    - 适配器用于对容器、迭代器等进行封装，以便提供额外的功能。例如，std::stack 是容器适配器，std::priority_queue 是一个基于堆的容器适配器
 
 
 
 
+### gcc
+```yaml
+gcc:
+
+```
 
 
 
 ### g++
-
 ```yaml
 g++:
-    -o: # 指定输出文件名
+    -c: # 编程生成中间文件(.o)
+    -o: # 编译可执行文件(.exe)，指定输出文件名
     --std: # C++标准库版本
 ```
 
@@ -46,32 +56,48 @@ g++:
 std:
     <algorithm>: # 算法库
         accumulate():
-        binary_search():
+        binary_search(): # 二分查找，(begin, end, val)
         copy():
-        count():
+        count(): # 出现次数
+        count_if():
         equal_range():
         fill():
-        find():
+        find(): # 查找，(begin, end, val)
+        find_if(): # 条件查找，(begin, end, pred)
+        for_each(): # 迭代遍历，(begin, end, func)
         is_sorted():
         lower_bound(): # 找到第一个>= value的位置
         max():
         max_element():
+        merge(): # 
         min():
-        min_element():
+        min_element(): # 最小元素迭代器
         next_permutation():
         nth_element():
         partial_sort():
         prev_permutation():
         remove():
-        replace():
-        reverse():
+        replace(): # 元素替换，(begin, end, old, new)
+        replace_if():
+        reverse(): # 反转元素顺序   
         rotate():
+        set_difference():
+        set_intersection():
+        set_union():
         shuffle():
-        sort(): # 排序
+        sort(): # 排序,(begin, end, comp)
         stable_sort():
+        transform(): # 元素转换，(begin, end, out, func)
         upper_bound(): # 找到第一个>value的位置
-        unique(): # 去重
-    <any>:
+        unique(): # 去重,去除相邻重复（返回新末尾）
+    <any>: # 动态，任意类型
+        any: # 任意类型
+            has_value():
+            reset(): # 清空值
+            type():
+        bad_any_cast: # any转换异常
+        any_cast(): # any转具体类型，抛出bad_any_cas异常
+        make_any():
     <array>: # c固定大小数组封装
         array: # 固定大小数组
             iterator: # 迭代器
@@ -84,42 +110,119 @@ std:
             fill(): # 数据填充
             front(): # 第一个元素
             size(): # 大小
-    <atomic>: # 原子库
+    <atomic>: # 原子操作
+        atomic: # 原子类
+            compare_exchange_strong(): # CAS操作
+            exchange():
+            fetch_add():
+            fetch_sub():
+            load():
+            store():
+        atomic_flag:
+            clear():
+            test_and_set():
         atomic_ref(): # 原子引用
-    <barrier>:
-    <bit>:
-    <bitset>:
-        bitset: # 二进制位，重载位运算操作
+    <barrier>: # 线程屏障,同步机制
+        barrier:
+            arrive():
+            arrive_and_drop():
+            arrive_and_wait(): # 到达，等待
+    <bit>: # 位运算库
+        bit_ceil(): # 	返回 ≥x 的最小 2 的幂
+        bit_floor(): # 返回 ≤x 的最大 2 的幂
+        bit_width(): # 	表示 x 用几位能表示（不含符号位）
+        byteswap(): # 交换字节顺序
+        countl_one(): # 前导 1 的个数
+        countl_zero(): # 前导 0 的个数
+        countr_one(): # 后缀 1 的个数
+        countr_zero(): # 后缀 0 的个数
+        has_single_bit(): # 判断是否是 2 的幂
+        popcount(): # x 的二进制中 1 的个数
+    <bitset>: # 位集合
+        bitset: # 位集合，固定大小二进制位，重载位运算操作
             all():
-            any():
-            flip():
+            any(): # 判断是否有任意 1 位
+            count(): # 	返回 1 的位数
+            flip(): # 翻转某一位
             none():
-            reset():
-            set():
-            test():
-            to_string():
+            reset(): # 将所有位清零
+            set(): # 设置某一位的值
+            size(): # 返回 bitset 的位数
+            test(): # 判断指定位置是否为 
+            to_string(): # 转换为字符串表示
             to_ullong():
             to_ulong():
-    <charconv>:
+    <charconv>: # 字符与数值转换
+        from_chars():
+        to_chars():
     <chrono>: # 时间
-        duration: # 持续时间
+        clock: # 时间的测量工具
+        duration: # 时间的长度或间隔
             count():
-        high_resolution_clock: # 常用与计算时间差
+        high_resolution_clock: # 提供更高精度的时钟，常用与计算时间差
             now():
-        milliseconds:
-        seconds:
-        steady_clock:
-        system_clock:
+        microseconds: # 微秒
+        milliseconds: # 毫秒
+        minutes(): # 分钟
+        seconds: # 秒
+            count():
+        steady_clock: # 提供不会回退的单调时钟
+        system_clock: # 系统时间
             now():
             to_time_t():
+        time_point: # 特定的时间点
         duration_cast():
+        to_time_t():
     <codecvt>:
     <compare>:
     <complex>:
-    <concepts>:
-    <condition_variable>:
-    <coroutine>:
-    <deque>:
+    <concepts>: # 概念（Concepts），模板参数类型的约束
+        floating_point: # 浮动点类型
+        integral: # 整数类型
+        same_as<>:
+        signed_integral:
+        unsigned_integral:
+    <condition_variable>: # 条件变量，需配合锁机制使用
+        condition_variable: # 适用于标准锁 (std::mutex)
+            wait():
+            wait_for():
+            wait_until():
+            notify_all():
+            notify_one():
+        condition_variable_any: # 适用于任意类型的锁（不仅仅是 std::mutex）
+    <coroutine>: # 协程，常与future库一切使用
+        co_await: # 等待一个异步操作，协程在此暂停，直到操作完成
+            await_ready():
+            await_resume():
+            await_suspend():
+        co_return: # 结束协程并返回值
+            task: # (约定task任务)
+                h: # (约定coroutine_handle协程句柄)
+                promise_type: #（约定promise内部处理类型）
+        co_yield: # 使协程暂停并返回一个值，之后可以继续执行
+        coroutine_handle:
+            promise_type: #（约定promise内部处理类型）
+                final_suspend():
+                get_return_object():
+                initial_suspend():
+                return_value():
+                unhandled_exception():
+            destroy():
+            done():
+            from_promise(): # 创建coroutine_handle,(promise_type是由框架创建的）
+            promise(): # 对协程的 promise_type 对象的引用
+        coroutine_traits:
+        suspend_always: # 用于co_await 协程挂起
+        suspend_never:
+    <deque>: # 双端队列容器
+        deque: # 双端队列容器
+            at():
+            back():
+            front():
+            pop_back():
+            pop_front():
+            push_back():
+            push_front():
     <exception>: # 异常
         exception: # 异常基类
             what():
@@ -128,33 +231,99 @@ std:
         set_unexpected():
         terminate(): # 调用中断异常处理
         unexpected(): # 
-    <execution>:
-    <filesystem>:
-    <format>:
-    <forward_list>:
-    <fstream>: # 文件流
+    <execution>: # 并行执行策略，常配合<alogorithm>使用
+        par: # 并行
+        seq: # 串行
+        par_unseq: # 并行无序
+    <filesystem>: # 文件系统
+        filesystem: # 文件系统
+            directory_iterator: # 目录迭代器
+                path():
+            filesystem_error: # 文件系统异常
+            path: # 路径操作
+                extension():
+                filename():
+                string():
+                parent_path():
+            create_directories():
+            create_directory():
+            create_symlink():
+            exists():
+            file_size():
+            is_directory():
+            is_regular_file():
+            last_write_time():
+            remove():
+            remove_all():
+    <format>: # 格式化字符串，取代printf
+        format(): # 字符串格式化
+            {}:
+                :d:
+                :f:
+                :x:
+                :<:
+                :>:
+                :^: # 居中
+                :+: # 正负号
+                :[0][n]: # 填充0，位宽n
+        format_to():
+        make_format_args():
+        vformat(): # 变参 format
+    <forward_list>: # 单向链表容器
+        before_begin():
+        clear():
+        emplace_after(): # 地构造并插入（避免复制)   
+        erase_after():
+        insert_after():
+        push_front():
+        remove():
+    <fstream>: # 文件流，析构函数会自动关闭文件
+        filebuf:
+        fstream: # 文件流
+            close():
         ifstream: # 输入文件流
+            close():
         ofstream: # 输出文件流
-    <functional>: # 仿函数
+            close():
+    <functional>: # 函数工具库
+        function: # 函数封装器
         placeholders: # 函数绑定占位符
             _1:
             _2:
             _3:
-        bind(): # 函数绑定
+        bind(): # 函数绑定，配合placeholders占位符使用
         equal_to():
         greater(): # 比较器，仿函数
         greater_equal():
-        hash(): # 哈希运算
+        hash(): # 哈希函数模板
         less():
         less_equal():
         logical_and():
         logical_not():
+        mem_fn(): # 成员函数引用
         modulus():
+        not_fn(): # 函数结果取反包装
         not_equal_to():
-        plus():
-    <future>:
-    <initializer_list>:
-    <iomanip>: # 格式化输出
+        plus(): # +加法运算
+        ref(): # 函数绑定，引用传参
+    <future>: # 异步响应结果future、promise、packaged_task、async()、
+        future: # 异步响应结果，co_await能直接取出future中的值
+            get(): # 阻塞等待取出
+            share():
+        future_status:
+        launch: # 启动策略
+            async: # 立即执行
+            deferred: # get()延迟执行
+        packaged_task: # 普通函数包装成任务task
+            get_future():
+        promise: # 异步传参
+            get_future():
+            set_value():
+        shared_future: # 多线程共享future
+        async(): # 执行异步函数，返回future
+    <initializer_list>: # 大括号初始化列表
+        initializer_list: # 初始化列表，可直接赋值给vector
+    <iomanip>: # 格式化输出， 局部有效性，当前流式操作后面的局部有效
         boolalpha: # bool布尔字符显示
         fixed: # 以固定小数点格式显示
         left: # 左对齐 
@@ -163,7 +332,8 @@ std:
         setfill(): # 填充字符
         setprecision(): # 设置小数精度
         setw(): # 指定输出的最小宽度，不足时填充空格
-    <ios>:
+    <ios>: # 流格式、状态控制
+        ios:
     <iostream>: # 输入、输出
         cerr: # 标准异常流
         cin: # 标准输入流
@@ -322,7 +492,10 @@ std:
     <thread>: # 线程库
     <tuple>:
     <typeindex>:
-    <typeinfo>:
+    <typeinfo>: # type类型信息
+        type_info:
+            hash_code():
+            name():
     <type_traits>: # 编译时执行类型检测
         conditional<>: # <T, U, V>,类型选择工具
         enable_if<>: # 模板特化或者约束模板参数
@@ -407,12 +580,15 @@ for (int i = 0; i < arr.size(); ++i) {
 用于替代传统的 C 风格数组
 
 
-#### stack
+#### list
+
+链表，容器
 
 
 
-#### queue
+#### forward_list
 
+单向链表容器
 
 
 
@@ -424,7 +600,30 @@ vector<int> arr(100, 0);
 
 ```
 
-动态数组，大小可变
+动态数组，容器，大小可变
+
+
+
+#### stack
+
+栈，容器适配器
+
+#### queue
+
+队列，容器适配器
+
+
+#### priority_queue
+
+优先队列，容器适配器
+
+
+#### deque
+
+双端队列容器
+支持随机访问
+
+
 
 
 #### bitset
@@ -452,6 +651,8 @@ Control Flow:
     <=>:
     auto: # 自动类型推断，常用于lambda、函数指针
     const: # 常量
+    concept: # 自定义概念，模板参数约束
+        requires():
     constexpr: # 常量表达式，编译时就计算某些常量的值，可定义常量表达式函数
     noexcept: # 标准方法无异常
     typedef: # 类型别名
@@ -832,14 +1033,111 @@ wrapper(20); // 传递右值
 
 
 #### Coroutine
+```c++
+struct task {
+    struct promise_type {
+        task get_return_object() {
+            return task{std::coroutine_handle<promise_type>::from_promise(*this)};
+        }
+
+        std::suspend_always initial_suspend() {
+            return {};  // 协程初始化时挂起
+        }
+
+        std::suspend_always final_suspend() noexcept {
+            return {};  // 协程结束时挂起
+        }
+
+        void return_value(int value) {
+            result = value;  // 设置协程返回值
+        }
+
+        void unhandled_exception() {
+            std::exit(1);  // 异常处理
+        }
+
+        int result;  // 协程的返回值
+    };
+
+    std::coroutine_handle<promise_type> h;
+
+    task(std::coroutine_handle<promise_type> h) : h(h) {}
+    ~task() { h.destroy(); }
+
+    int get() {
+        return h.promise().result;  // 获取协程的返回值
+    }
+};
+
+task example_coroutine() {
+    std::cout << "Before await\n";
+    co_await std::suspend_always{};  // 挂起协程
+    std::cout << "After await\n";
+    co_return 42;  // 返回值 42
+}
+
+
+auto task_instance = example_coroutine();
+task_instance.h.resume();  // 恢复协程
+std::cout << "Returned value: " << task_instance.get() << "\n";
+```
+
 
 协程
+task = coroutine_handle + promise_type 
+- get_return_object()：在协程开始时调用一次，返回协程的返回对象，通常是封装协程句柄的类型（如 task）。
+- initial_suspend()：协程开始时调用，控制协程是否在启动时挂起。
+- final_suspend()：协程结束时调用，控制协程是否在结束时挂起。
+- return_value()：当协程通过 co_return 返回一个值时调用，用来存储返回值。
+- unhandled_exception()：当协程抛出未捕获的异常时调用，用于处理异常。
+
+
+task仅仅是用于协程状态处理，复杂耗时操作应该定义在协程函数中
+coroutine_handle是task处理协程状态的核心
+promise_type 是由 C++ 协程框架自动创建的，具体来说，它是 协程 的一部分，在协程的生命周期中由协程框架负责管理
+
+协程对象创建流程：
+1. 调用协程函数：当调用协程函数时（如 example_coroutine()），协程框架会为协程创建一个 promise_type 对象。
+2. 创建协程句柄：框架通过 get_return_object() 返回一个封装了协程句柄（std::coroutine_handle<promise_type>）的对象（如 task）
+3. 初次挂起：协程执行到 initial_suspend()，此时协程会被挂起，等待外部恢复。
+4. 恢复执行：外部代码调用 std::coroutine_handle::resume() 恢复协程，协程继续执行。
+5. 存储返回值：协程执行到 co_return 时，返回值会存储在 promise_type 对象中，并触发 return_value()。
+6. 协程完成：当协程完成时，final_suspend() 会被调用，协程终止，销毁协程句柄和 promise_type 对象。
+
+
+
+协程执行顺序：
+1. 调用一个协程函数（co_await、co_return）,协程框架会根据协程的定义自动创建一个 promise_type
+2. get_return_object() 调用，创建并返回一个 task 对象，task 的构造方法 `task(std::coroutine_handle<my_promise_type> h)` 会接收协程句柄 h，并初始化 task 对象
+3. task持有coroutine_handle，处理协程执行状态
+
+
+
+
+
+
+
+#### Atomic
+
+原子操作
+
 
 #### Mutex
 
 锁
 
 
+#### Barrier
+
+<barrier> 是 C++20 引入的头文件，提供了一个线程屏障（barrier）机制，用于协调多个线程在某个同步点等待，直到所有线程都到达该点再继续执行
+
+
+#### Condition Variable
+
+条件变量
+用于线程间同步的一部分，提供了线程等待、通知机制，通常用于实现线程间的协调和通信
+
+允许一个线程等待直到另一个线程发出某种信号（通知）。这种机制在生产者-消费者问题、任务队列等多线程场景中非常常见
 
 
 
