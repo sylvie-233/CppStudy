@@ -41,6 +41,44 @@ int binarySearch(int left, int right, int v) {
 ![二叉树遍历](../assets/二叉树遍历.png)
 
 
+### ST表
+```c++
+// 计算1~n的log2值
+for (int i = 2; i <= n; ++i)
+    Log2[i] = Log2[i / 2] + 1;
+
+// f[a][b]，a存储位置索引(1~n)，b存储2进制长度，f[a][b]存储a~a+2^b-1范围的最值
+int f[MAXN][21]; // 第二维的大小根据数据范围决定，不小于log(MAXN)
+for (int i = 1; i <= n; ++i)
+    f[i][0] = read(); // 读入数据
+for (int i = 1; i <= 20; ++i)
+    for (int j = 1; j + (1 << i) - 1 <= n; ++j)
+        f[j][i] = max(f[j][i - 1], f[j + (1 << (i - 1))][i - 1]);
+
+// 初始化、计算
+for (int i = 0; i < n; ++i) {
+    int l = read(), r = read();
+    // 区间长度所对应的log2值(不超过长度)
+    int s = Log2[r - l + 1];
+    // 查询、左右边界2进制长度查询
+    printf("%d\n", max(f[l][s], f[r - (1 << s) + 1][s]));
+}
+```
+
+ST 表（Sparse Table，稀疏表）是用于解决 可重复贡献问题 的数据结构
+![ST表](../assets/st表.png)
+![ST表存储格式](../assets/ST表存储格式.png)   
+
+目标：
+- 区间最值
+
+
+
+
+
+预处理，倍增
+
+
 
 ### 单调栈
 
