@@ -1,9 +1,7 @@
 # C++
 
 >
->``
->
->
+>`C++标准库速览：P27`
 >
 
 
@@ -278,11 +276,16 @@ std:
     <forward_list>: # 单向链表容器
         before_begin():
         clear():
-        emplace_after(): # 地构造并插入（避免复制)   
-        erase_after():
-        insert_after():
+        emplace_after(): # 就地构造并插入（避免复制)   
+        erase_after(): # 元素删除
+        insert_after(): # 元素插入
+        merge(): # 链表合并，有序
         push_front():
-        remove():
+        remove(): # 删除元素
+        remove_if():
+        sort(): # 排序
+        splice_after(): # 范围插入
+        unique(): # 元素去重
     <fstream>: # 文件流，析构函数会自动关闭文件
         filebuf:
         fstream: # 文件流
@@ -293,13 +296,13 @@ std:
             close():
     <functional>: # 函数工具库
         function: # 函数封装器
+        greater: # 比较器，仿函数
         placeholders: # 函数绑定占位符
             _1:
             _2:
             _3:
         bind(): # 函数绑定，配合placeholders占位符使用
         equal_to():
-        greater(): # 比较器，仿函数
         greater_equal():
         hash(): # 哈希函数模板
         less():
@@ -360,21 +363,25 @@ std:
         numeric_limits: # 数值字面量范围
             max():
             min():
-    <list>:
+    <list>: # 双向链表
+        list:
     <locale>:
     <map>: # 哈希表，映射
         map:
             iterator: # 迭代器，可运算
-                first:
-                second:
+            at(): # 元素索引
             begin():
             clear():
             count():
+            emplace():
             empty():
             end():
             erase():
             find():
+            insert():
+            insert_or_assign():
             size():
+            try_emplace():
     <memory>: # 内存管理
         unique_ptr: # 独享指针
         shared_ptr: # 共享指针，引用计数
@@ -398,11 +405,6 @@ std:
         optional: # 可空类型，通过解引用 * 访问内部值
         make_optional():
     <ostream>:
-    <priority_queue>:
-        priority_queue:
-            pop():
-            push():
-            top():
     <queue>: # 队列
         queue:
             back():
@@ -411,30 +413,56 @@ std:
             pop():
             push():
             size():
+        priority_queue: # 优先队列
+            empty():
+            pop():
+            push():
+            top():
     <random>: # 随机数
         mt19937():
         random_device():
-    <ranges>:
+    <ranges>: # 列表流式操作
+        range:
+        ranges: # 范围操作
+            any_of():
+            find():
+            sort():
+        views: # 视图操作
+            drop(): # 跳过前n个元素
+            filter(): # 过滤
+            reverse():
+            take(): # 取前n个元素
+            transform(): # 转换
     <ratio>:
     <regex>:
     <semaphere>:
     <set>: # 集合
         iterator: # 迭代器，可运算
+        node_type: # 集合节点
+            value():
         begin():
         clear():
         count():
         empty():
         end():
         erase():
+        extract(): # 提取节点
         find():
-        insert():
+        insert(): # 插入元素
+        lower_bound():
+        merge(): # 集合合并
         size():
+        upper_bound():
     <shared_mutex>:
-    <span>: # 简单序列
+    <span>: # 连续列表的不可变引用
         span:
+            begin():
+            end():
+            size():
     <sstream>:
     <stack>: # 栈
         stack: # 栈
+            emplace():
             empty():
             pop():
             push():
@@ -447,35 +475,38 @@ std:
     <streambuf>:
     <string>: # 字符串
         basic_string:
-        string: # 字符串
+        hash: # 哈希运算
+        string: # 字符串，basic_string<char>别名
             iterator: # 迭代器
             npos: # 结束索引位置，-1
-            append():
-            at():
+            append(): # 追加字符串
+            at(): # 字符索引，字节
             back():
             begin(): # 起始迭代器
             c_str(): # c风格字符串
-            capacity():
-            clear():
-            compare():
-            contains():
+            capacity(): # 字节容量
+            clear(): # 清空字符串
+            compare(): # 字符串比较
+            contains(): # 字符串包含
             data(): # c型字符串
-            empty():
+            empty(): # 空字符串
             end(): # 结束迭代器
-            ends_with():
-            erase():
+            ends_with(): # 结束匹配
+            erase(): # 字符串删除
             find(): # 字符串查找
+            find_first_of():
             front():
-            insert():
+            insert(): # 字符串插入
             length(): # 字符串长度
             max_size():
             push_back():
-            replace():
+            replace(): # 字符串替换
             reserve():
-            resize():
+            resize(): # 重新分配内存
+            rfind():
             shrink_to_fit():
-            size(): # 字符串大小
-            starts_with():
+            size(): # 字符串字节大小
+            starts_with(): # 开始匹配
             substr(): # 字符串截取
         stof(): # 字符串转浮点数
         stoi(): # 字符串转整型
@@ -521,7 +552,9 @@ std:
     <unordered_set>:
     <utility>: # 工具库
         pair: # 二元组
-        make_pair():
+            first:
+            second:
+        make_pair(): # 创建二元组
         swap():
     <variant>: # 联合类型变体
         bad_variant_access: # 错误变体访问异常
@@ -532,7 +565,11 @@ std:
         vector: # 向量
             back(): # 尾元素
             clear(): # 清空
+            emplace(): # 就地插入
+            emplace_back(): # 就地构造添加元素，避免元素拷贝
             empty(): # 为空判断
+            erase(): # 元素删除
+            insert(): # 元素插入
             pop_back(): # 尾部删除
             push_back(): # 尾部添加
             resize(): # 扩/缩容
@@ -593,6 +630,21 @@ for (int i = 0; i < arr.size(); ++i) {
 用于替代传统的 C 风格数组
 
 
+#### vector
+```c++
+// 初始化长度为100，初始值为0的数组
+vector<int> arr(100, 0);
+
+
+```
+
+动态数组，容器，大小可变
+
+
+#### span
+
+
+
 #### list
 
 链表，容器
@@ -604,16 +656,12 @@ for (int i = 0; i < arr.size(); ++i) {
 单向链表容器
 
 
+#### deque
 
-#### vector
-```c++
-// 初始化长度为100，初始值为0的数组
-vector<int> arr(100, 0);
+双端队列容器
+支持随机访问
 
 
-```
-
-动态数组，容器，大小可变
 
 
 
@@ -631,21 +679,33 @@ vector<int> arr(100, 0);
 优先队列，容器适配器
 
 
-#### deque
-
-双端队列容器
-支持随机访问
 
 
 
 
-#### bitset
 
 
 #### set
 
 
+
+
 #### map
+
+
+
+#### multiset
+
+#### multimap
+
+
+#### unordered_set
+
+
+#### unordered_map
+
+
+#### bitset
 
 
 
