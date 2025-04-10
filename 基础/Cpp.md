@@ -1,7 +1,7 @@
 # C++
 
 >
->`每天5分钟了解现代C++新特性：P4`
+>``
 >
 >
 >
@@ -32,6 +32,11 @@ C++ STL 四大类：
 
 
 
+支持自定义字面量
+
+
+
+
 
 ### gcc
 ```yaml
@@ -46,6 +51,7 @@ gcc:
 g++:
     -c: # 编程生成中间文件(.o)
     -o: # 编译可执行文件(.exe)，指定输出文件名
+    -I: # 头文件位置
     --std: # C++标准库版本
 ```
 
@@ -493,9 +499,9 @@ std:
     <tuple>:
     <typeindex>:
     <typeinfo>: # type类型信息
-        type_info:
+        type_info: # type类型信息
             hash_code():
-            name():
+            name(): # type名称
     <type_traits>: # 编译时执行类型检测
         conditional<>: # <T, U, V>,类型选择工具
         enable_if<>: # 模板特化或者约束模板参数
@@ -554,13 +560,20 @@ Data Types:
 ```
 
 
+聚合类型：data class
+
+
 #### struct
 
 结构体
 
 
 #### string
-
+```c++
+std::string str = R"(
+    原生字符串，可用于多行字符串
+)";
+```
 字符串
 
 
@@ -654,18 +667,30 @@ Control Flow:
     concept: # 自定义概念，模板参数约束
         requires():
     constexpr: # 常量表达式，编译时就计算某些常量的值，可定义常量表达式函数
-    noexcept: # 标准方法无异常
+    constinit:
+    constval:
+    final: # 标记不允许重写、不允许继承
+    noexcept: # 标记方法无异常
+    override: # 标记重写
+    thread_local: # 线程局部对象
     typedef: # 类型别名
+    alignas(): # 位对齐
+    alignof(): # 
     const_cast():
+    decltype(): # 获取type类型，编译时
     dynamic_cast():
     reinterpret_cast():
+    sizeof():
+    static_assert(): # 编译时断言
     static_cast():
+    typeid(): # 获取type id，运行时
     using: # 命名空间引入、类型别名
+    if ... else if ... else ...: # 条件判断，支持初始化语句
     for ...: # 循环遍历、增强for循环
 ```
 
 太空船运算符`<=>`
-
+支持结构化绑定：解构，可用于结构体
 
 
 
@@ -716,12 +741,21 @@ int&& x = 10;  // x 是一个右值引用，绑定到右值 10
 
 #### Attibute
 
-- `[[likely]]`：分支预测判断
+- deprecated:
+- fallthrough:
+- likely: 分支预测判断
+- maybe_unused:
+- nodiscard:
+- noreturn:
 
 
 
 
 ### 函数
+
+使用 auto 支持函数类型后置
+
+
 
 #### Lambda
 ```c++
@@ -799,6 +833,8 @@ public:
 
 支持构造函数初始化列表
 触发移动构造：`MyClass obj2 = std::move(obj1);`
+
+using继承构造函数
 
 
 #### Destructor
