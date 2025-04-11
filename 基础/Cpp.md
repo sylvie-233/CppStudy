@@ -1,7 +1,7 @@
 # C++
 
 >
->`C++标准库速览：P27`
+>`C++标准库速览：P41`
 >
 
 
@@ -63,40 +63,79 @@ g++:
 std:
     <algorithm>: # 算法库
         accumulate():
+        adjacent_find(): # 相邻相同值
+        all_of():
+        any_of():
         binary_search(): # 二分查找，(begin, end, val)
-        copy():
+        copy(): # 拷贝
+        copy_if():
+        copy_n():
         count(): # 出现次数
         count_if():
+        equal():
         equal_range():
-        fill():
+        erase():
+        fill(): # 填充
+        fill_n():
         find(): # 查找，(begin, end, val)
+        find_first_of():
         find_if(): # 条件查找，(begin, end, pred)
+        find_if_not():
         for_each(): # 迭代遍历，(begin, end, func)
-        is_sorted():
+        for_each_n():
+        generate():
+        generate_n():
+        includes():
+        is_sorted(): # 判断是否有序
+        iter_swap():
+        lexicographical_compare(): # 字典序比较字符串，<
+        lexicographical_compare_three_way(): # 
         lower_bound(): # 找到第一个>= value的位置
         max():
         max_element():
         merge(): # 
         min():
         min_element(): # 最小元素迭代器
+        minmax_element():
+        mismatch():
+        move():
+        next():
         next_permutation():
+        none_of():
         nth_element():
-        partial_sort():
+        partial_sort(): # 部分排序
+        partial_sort_copy():
+        partition():
+        prev():
         prev_permutation():
+        reduce(): # 迭代计算，默认累加
         remove():
+        remove_copy():
+        remove_copy_if():
+        remove_if():
         replace(): # 元素替换，(begin, end, old, new)
+        replace_copy():
         replace_if():
         reverse(): # 反转元素顺序   
         rotate():
+        sample(): # 随机采样
+        search():
+        search_n():
         set_difference():
         set_intersection():
         set_union():
-        shuffle():
+        shift_left():
+        shift_right():
+        shuffle(): # 随机打乱
         sort(): # 排序,(begin, end, comp)
-        stable_sort():
+        stable_partitioin():
+        stable_sort(): # 稳定排序
+        swap_ranges():
         transform(): # 元素转换，(begin, end, out, func)
+        transform_reduce():
         upper_bound(): # 找到第一个>value的位置
         unique(): # 去重,去除相邻重复（返回新末尾）
+        unique_copy():
     <any>: # 动态，任意类型
         any: # 任意类型
             has_value():
@@ -135,6 +174,11 @@ std:
             arrive_and_drop():
             arrive_and_wait(): # 到达，等待
     <bit>: # 位运算库
+        endian: # 大小端
+            big:
+            little:
+            native:
+        bit_cast(): # 按位强转
         bit_ceil(): # 	返回 ≥x 的最小 2 的幂
         bit_floor(): # 返回 ≤x 的最大 2 的幂
         bit_width(): # 	表示 x 用几位能表示（不含符号位）
@@ -145,9 +189,11 @@ std:
         countr_zero(): # 后缀 0 的个数
         has_single_bit(): # 判断是否是 2 的幂
         popcount(): # x 的二进制中 1 的个数
+        rotl(): # 循环左移
+        rotr(): # 循环右移
     <bitset>: # 位集合
         bitset: # 位集合，固定大小二进制位，重载位运算操作
-            all():
+            all(): # 判断所有位均为 1
             any(): # 判断是否有任意 1 位
             count(): # 	返回 1 的位数
             flip(): # 翻转某一位
@@ -155,7 +201,7 @@ std:
             reset(): # 将所有位清零
             set(): # 设置某一位的值
             size(): # 返回 bitset 的位数
-            test(): # 判断指定位置是否为 
+            test(): # 判断指定位置是否为1
             to_string(): # 转换为字符串表示
             to_ullong():
             to_ulong():
@@ -419,9 +465,10 @@ std:
         new[]():
     <numeric>: # 数学运算
         acumulate():
-        gcd():
-        iota():
-        lcm():
+        gcd(): # 最大公约数
+        iota(): # 连续序列数生成
+        lcm(): # 最小公倍数
+        lerp():
     <optional>: # 空值处理
         nullopt: # 空值
         optional: # 可空类型，通过解引用 * 访问内部值
@@ -449,6 +496,7 @@ std:
         normal_distribution: # 正态分布
         poisson_distribution: # 泊松分布
         random_device: # 生成随机种子
+            (): # 直接生成随机数
         uniform_int_distribution: # 整数均匀分布
         uniform_real_distribution: # 浮点均匀分布
     <ranges>: # 列表流式操作(ranges = views（视图） + actions（算法） + range 类型)
