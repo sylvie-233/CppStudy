@@ -13,7 +13,10 @@
 左值（Lvalue）：表示可以被取地址的对象，通常是可以在内存中持久存储的对象，如变量。
 右值（Rvalue）：表示临时的、无法取地址的对象，通常是一个临时对象或字面值
 
-
+RAII（Resource Acquisition Is Initialization）：通过对象的生命周期来管理资源，确保资源的正确获取和释放
+- 内存管理（std::unique_ptr, std::shared_ptr）
+- 文件处理（std::fstream）
+- 锁管理（std::lock_guard, std::unique_lock）
 
 
 
@@ -342,7 +345,6 @@ std:
         setprecision(): # 设置小数精度
         setw(): # 指定输出的最小宽度，不足时填充空格
     <ios>: # 流格式、状态控制
-        ios:
     <iostream>: # 输入、输出
         cerr: # 标准异常流
         cin: # 标准输入流
@@ -355,10 +357,22 @@ std:
         flush:
         ios:
             sync_with_stdio(): # 关闭C和 C++ 标准流同步，提高效率
+        istream: # 输入流
+        ostream: # 输出流
         getline(): # 读取一行
     <istream>:
-    <iterator>:
-    <latch>:
+    <iterator>: # 迭代器
+        reverse_iterator:
+        advance(): # 让迭代器前进 n 步
+        back_inserter(): # 插入迭代器
+        distance(): # 计算两个迭代器之间的距离
+        next(): # 	返回 it+n 的副本
+        prev(): # 返回 it−n 的副本
+    <latch>: # 一次性的线程等待屏障
+        latch:
+            count_down():
+            try_wait():
+            wait():
     <limits>: # 数值范围
         numeric_limits: # 数值字面量范围
             max():
@@ -388,7 +402,15 @@ std:
         weak_ptr: # 弱引用指针，
         make_shared():
         make_unique():
-    <mutex>:
+    <mutex>: # 互斥锁
+        lock_guard: # RAII 自动加解锁
+        mutex: # 互斥锁
+        recursive_mutex: # 可重复上锁，递归互斥锁
+        recursive_timed_mutex:
+        scoped_lock:
+        timed_mutex: # 带超时锁
+            try_lock_for():
+        unique_lock: # 可一次锁多个 mutex，避免死锁
     <new>: # 内存分配
         bad_alloc: # 内存分配 异常
         delete(): # 删除内存，可不带括号使用
@@ -418,24 +440,58 @@ std:
             pop():
             push():
             top():
-    <random>: # 随机数
-        mt19937():
-        random_device():
-    <ranges>: # 列表流式操作
+    <random>: # 随机数(种子+引擎+分布)
+        bernoulli_distribution: # 伯努利分布
+        binomial_distribution: # 二项分布
+        default_random_engine: # 默认引擎
+        minstd_rand: # 	线性同余生成器
+        mt19937: # Mersenne Twister引擎
+        normal_distribution: # 正态分布
+        poisson_distribution: # 泊松分布
+        random_device: # 生成随机种子
+        uniform_int_distribution: # 整数均匀分布
+        uniform_real_distribution: # 浮点均匀分布
+    <ranges>: # 列表流式操作(ranges = views（视图） + actions（算法） + range 类型)
         range:
         ranges: # 范围操作
             any_of():
             find():
             sort():
-        views: # 视图操作
+        views: # 视图操作,懒加载操作，不复制数据
             drop(): # 跳过前n个元素
             filter(): # 过滤
+            iota(): # range范围
+            join(): # 拼接嵌套 range
             reverse():
+            split(): # 按值拆分
             take(): # 取前n个元素
             transform(): # 转换
-    <ratio>:
-    <regex>:
-    <semaphere>:
+    <ratio>: # 编译期的有理数运算
+        ratio:
+            den:
+            num:
+        ratio_add<>:
+        ratio_divide<>:
+        ratio_equal<>:
+        ratio_greater<>:
+        ratio_less<>:
+        ratio_multiply<>:
+        ratio_subtract<>:
+    <regex>: # 正则表达式
+        regex: # 正则表达式对象（存储规则）
+        regex_constants:
+            icase:
+        sregex_iterator: # 遍历所有匹配项
+        smatch: # 匹配结果（string 专用）
+        regex_match(): # 整体匹配
+        regex_replace(): # 正则替换
+        regex_search(): # 局部匹配
+    <semaphere>: # 信号量，线程间的计数型信号量，并发量控制
+        binary_semaphore: # 类似互斥锁，最多允许一个线程访问，counting_semaphore<1>
+        counting_semaphore: # 允许多个线程访问，资源个数可设定
+            acquire():
+            release():
+            try_acquire():
     <set>: # 集合
         iterator: # 迭代器，可运算
         node_type: # 集合节点
@@ -453,13 +509,21 @@ std:
         merge(): # 集合合并
         size():
         upper_bound():
-    <shared_mutex>:
+    <shared_mutex>: # 共享锁，读写锁
+        shared_lock: # shared_mutex的RAII
+        shared_mutex:
+        shared_timed_mutex:
     <span>: # 连续列表的不可变引用
         span:
             begin():
             end():
             size():
-    <sstream>:
+    <sstream>: # 字符串流
+        istringstream:
+        ostringstream:
+        stringstream: # 读 + 写
+            clear():
+            str():
     <stack>: # 栈
         stack: # 栈
             emplace():
@@ -472,7 +536,8 @@ std:
         runtime_error: # 运行时异常
         logic_error: # 逻辑异常
     <stop_token>:
-    <streambuf>:
+    <streambuf>: # 抽象缓冲层，IO 系统的底层缓冲区
+        streambuf: # 抽象缓冲层
     <string>: # 字符串
         basic_string:
         hash: # 哈希运算
@@ -527,7 +592,21 @@ std:
     <syncstream>:
     <system_error>:
     <thread>: # 线程库
-    <tuple>:
+        this_thread:
+            get_id():
+            hardware_concurrency():
+            sleep_for():
+            yield():
+        thread: # 线程
+            detach():
+            join():
+            joinable():
+    <tuple>: # 元组
+        tuple:
+        apply():
+        get():
+        make_tuple():
+        tie():
     <typeindex>:
     <typeinfo>: # type类型信息
         type_info: # type类型信息
@@ -551,10 +630,16 @@ std:
     <unodered_map>:
     <unordered_set>:
     <utility>: # 工具库
+        index_sequence<>:
+        integer_sequence<>:
         pair: # 二元组
             first:
             second:
+        declval():
+        exchange(): # 原子交换
+        forward():
         make_pair(): # 创建二元组
+        move():
         swap():
     <variant>: # 联合类型变体
         bad_variant_access: # 错误变体访问异常
@@ -628,6 +713,12 @@ for (int i = 0; i < arr.size(); ++i) {
 
 静态大小数组、c数组封装
 用于替代传统的 C 风格数组
+
+
+#### tuple
+
+
+元组
 
 
 #### vector
@@ -1210,6 +1301,9 @@ promise_type 是由 C++ 协程框架自动创建的，具体来说，它是 协�
 
 
 
+##### Future
+
+
 
 
 
@@ -1223,9 +1317,20 @@ promise_type 是由 C++ 协程框架自动创建的，具体来说，它是 协�
 锁
 
 
+##### Shared Mutex
+
+读写锁
+
+
 #### Barrier
 
 <barrier> 是 C++20 引入的头文件，提供了一个线程屏障（barrier）机制，用于协调多个线程在某个同步点等待，直到所有线程都到达该点再继续执行
+
+
+#### Latch
+
+
+一次性的线程屏障
 
 
 #### Condition Variable
@@ -1234,6 +1339,12 @@ promise_type 是由 C++ 协程框架自动创建的，具体来说，它是 协�
 用于线程间同步的一部分，提供了线程等待、通知机制，通常用于实现线程间的协调和通信
 
 允许一个线程等待直到另一个线程发出某种信号（通知）。这种机制在生产者-消费者问题、任务队列等多线程场景中非常常见
+
+#### Semaphere
+
+信号量
+并发量控制
+
 
 
 
