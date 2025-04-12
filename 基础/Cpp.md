@@ -1,7 +1,7 @@
 # C++
 
 >
->`C++标准库速览：P41`
+>`C++标准库速览：P48`
 >
 
 
@@ -208,26 +208,39 @@ std:
     <charconv>: # 字符与数值转换
         from_chars():
         to_chars():
-    <chrono>: # 时间
+    <chrono>: # 时间(时间点、时钟、时间单位)
         clock: # 时间的测量工具
-        duration: # 时间的长度或间隔
+        duration: # 时间的长度或间隔，用于手动构造时间单位
             count():
         high_resolution_clock: # 提供更高精度的时钟，常用与计算时间差
+            time_point: # 特定的时间点
+                time_since_epoch():
             now():
         microseconds: # 微秒
         milliseconds: # 毫秒
-        minutes(): # 分钟
+        minutes: # 分钟
         seconds: # 秒
             count():
         steady_clock: # 提供不会回退的单调时钟
-        system_clock: # 系统时间
+            time_point: # 特定的时间点
+                time_since_epoch():
+            now():
+        system_clock: # 系统时钟
+            time_point: # 特定的时间点
+                time_since_epoch():
             now():
             to_time_t():
-        time_point: # 特定的时间点
-        duration_cast():
+        duration_cast(): # 时间间隔转换位具体类型
+        time_point_cast():  # 时间点单位转换
         to_time_t():
     <codecvt>:
-    <compare>:
+    <compare>: # 比较，常用于三路比较
+        partial_ordering: # 三路比较结果
+            greater:
+            less:
+        is_eq():
+        is_gt():
+        is_less():
     <complex>:
     <concepts>: # 概念（Concepts），模板参数类型的约束
         floating_point: # 浮动点类型
@@ -236,7 +249,7 @@ std:
         signed_integral:
         unsigned_integral:
     <condition_variable>: # 条件变量，需配合锁机制使用
-        condition_variable: # 适用于标准锁 (std::mutex)
+        condition_variable: # 条件变量，需配合锁机制使用,适用于标准锁 (std::mutex)
             wait():
             wait_for():
             wait_until():
@@ -290,17 +303,34 @@ std:
         par_unseq: # 并行无序
     <filesystem>: # 文件系统
         filesystem: # 文件系统
+            directory_entry: # 目录条目，遍历用
+                exists():
+                is_directory():
+                is_regular_file():
+                path():
             directory_iterator: # 目录迭代器
                 path():
             filesystem_error: # 文件系统异常
             path: # 路径操作
+                append(): # 追加路径
+                clear():
+                concat():
                 extension():
                 filename():
+                make_preferred():
+                remove_filename():
+                replace_extension():
+                replace_filename():
+                root_name():
+                stem():
                 string():
                 parent_path():
+            recursive_directory_iterator: # 深度遍历目录
+            copy():
             create_directories():
             create_directory():
             create_symlink():
+            current_path(): # 当前路径
             exists():
             file_size():
             is_directory():
@@ -308,6 +338,7 @@ std:
             last_write_time():
             remove():
             remove_all():
+            rename():
     <format>: # 格式化字符串，取代printf
         format(): # 字符串格式化
             {}:
@@ -344,7 +375,7 @@ std:
         ofstream: # 输出文件流
             close():
     <functional>: # 函数工具库
-        function: # 函数封装器
+        function: # 函数封装器，代替函数指针
         greater: # 比较器，仿函数
         placeholders: # 函数绑定占位符
             _1:
@@ -372,13 +403,13 @@ std:
         launch: # 启动策略
             async: # 立即执行
             deferred: # get()延迟执行
-        packaged_task: # 普通函数包装成任务task
+        packaged_task: # 普通函数包装成任务task，异步执行
             get_future():
         promise: # 异步传参
             get_future():
             set_value():
-        shared_future: # 多线程共享future
-        async(): # 执行异步函数，返回future
+        shared_future: # 多线程共享future，可get()多次
+        async(): # 执行异步函数，返回future，类似packaged_task，可设置launch启动模式
     <initializer_list>: # 大括号初始化列表
         initializer_list: # 初始化列表，可直接赋值给vector
     <iomanip>: # 格式化输出， 局部有效性，当前流式操作后面的局部有效
@@ -447,16 +478,23 @@ std:
         shared_ptr: # 共享指针，引用计数
         weak_ptr: # 弱引用指针，
         make_shared():
-        make_unique():
+        make_unique(): # 代替原生new，支持原位构造
     <mutex>: # 互斥锁
+        adopt_lock:
+        defer_lock:
         lock_guard: # RAII 自动加解锁
         mutex: # 互斥锁
+            lock():
+            unlock():
+        once_flag: # 
         recursive_mutex: # 可重复上锁，递归互斥锁
         recursive_timed_mutex:
         scoped_lock:
+        shared_lock:
         timed_mutex: # 带超时锁
             try_lock_for():
         unique_lock: # 可一次锁多个 mutex，避免死锁
+        call_once(): # 
     <new>: # 内存分配
         bad_alloc: # 内存分配 异常
         delete(): # 删除内存，可不带括号使用
@@ -526,14 +564,20 @@ std:
         ratio_multiply<>:
         ratio_subtract<>:
     <regex>: # 正则表达式
+        basic_regex:
+        cmatch:
+        match_results: # 匹配结果
         regex: # 正则表达式对象（存储规则）
         regex_constants:
             icase:
         sregex_iterator: # 遍历所有匹配项
         smatch: # 匹配结果（string 专用）
+            prefix():
+            size():
+            str():
         regex_match(): # 整体匹配
         regex_replace(): # 正则替换
-        regex_search(): # 局部匹配
+        regex_search(): # 局部匹配，配合smatch使用
     <semaphere>: # 信号量，线程间的计数型信号量，并发量控制
         binary_semaphore: # 类似互斥锁，最多允许一个线程访问，counting_semaphore<1>
         counting_semaphore: # 允许多个线程访问，资源个数可设定
@@ -640,6 +684,7 @@ std:
     <syncstream>:
     <system_error>:
     <thread>: # 线程库
+        jthread:
         this_thread:
             get_id():
             hardware_concurrency():
@@ -652,9 +697,9 @@ std:
     <tuple>: # 元组
         tuple:
         apply():
-        get():
+        get(): # 0, 1, 2
         make_tuple():
-        tie():
+        tie(): # 元组解构
     <typeindex>:
     <typeinfo>: # type类型信息
         type_info: # type类型信息
