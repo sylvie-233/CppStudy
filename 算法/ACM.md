@@ -30,6 +30,13 @@ int binarySearch(int left, int right, int v) {
 ## 二、数据结构
 
 
+### 树
+
+
+#### 树的重心
+
+
+
 ### 二叉树
 
 二叉树先序遍历：`中 -> 左 -> 右`
@@ -277,6 +284,77 @@ build(1, 1, n);
 ## 三、字符串
 
 
+### 哈希Hash
+```c++
+// 一维字符串hash
+const int M=233;//是我们自己选择的进制数，一般可以选233,2333,10007等质数
+const int mod=1e9+7;//一般选一个比较大的质数
+long long get(string s)//获取字符串对应的哈希值
+{
+	long long sum=0;
+	for(int i=0;i<s.size();i++) sum=(sum*M+s[i]-'a')%mod;
+	return sum;
+}
+
+// 一维hash，使用unsigned long long 溢出
+typedef unsigned long long int ull;
+const int N=1e5+10;
+const int M=233;
+ull h[N],base[N]; // h[i]记录1~i的前缀hash，// base[i]=M^i
+ull query(int l,int r)//获取字符串[l,r]的哈希值
+{
+    return h[r]-h[l-1]*base[r-l+1];
+}
+//初始化哈希，1~n
+void init(string s)
+{
+    int n=s.size();
+    s="0"+s;//让其下标从1开始
+    base[0]=1;
+    for(int i=1;i<=n;i++)
+    {
+        h[i]=h[i-1]*M+s[i];
+        base[i]=base[i-1]*M;
+    }
+}
+//求[l1,r1],[l2,r2]子串并的哈希值
+ull merge(int l1, int r1, int l2, int r2)
+{
+    return query(l1, r1) * base[r2 - l2 + 1] + query(l2, r2);
+}
+
+// 二维矩阵hash
+typedef long long int ll;
+const int N=1010;
+ll h[N][N],base1[N],base2[N];
+int a[N][N],n,m;
+//构建，先构建行前缀hash（左到右，base1）,在依靠行前缀hash构造列矩阵hash（上到下）
+void init()
+{
+    base1[0]=base2[0]=1;
+    for(int i=1;i<N;i++)
+    {
+        base1[i]=base1[i-1]*131;
+        base2[i]=base2[i-1]*233;
+    }
+    for(int i=1;i<=n;i++)
+        for(int j=1;j<=m;j++)
+            h[i][j]=h[i][j-1]*131+a[i][j];//行哈希
+    for(int i=1;i<=n;i++)
+        for(int j=1;j<=m;j++)
+            h[i][j]=h[i-1][j]*233+h[i][j];//列哈希
+}
+//查询矩阵的哈希值，最前面的最大，需要补充由于长度导致前面少乘的幂运算
+ll query(int x1,int y1,int x2,int y2)//查询矩阵的哈希值
+{
+    return h[x2][y2]-h[x2][y1-1]*base1[y2-y1+1]-h[x1-1][y2]*base2[x2-x1+1]
+    +h[x1-1][y1-1]*base1[y2-y1+1]*base2[x2-x1 + 1];
+}
+```
+
+把一个东西转换成一个大整数，这样比较两个东西是否相等的就只要比较两个整数是否相等就行了
+
+![二维hash原理](../assets/二维hash原理.png)
 
 
 
@@ -312,7 +390,66 @@ f[i][j]记录 a[1~i]和b[1~j]的最长公共子序列
 
 ## 五、图论
 
+### 图
 
+#### 图的存储
+
+
+##### 邻接矩阵
+```c++
+int w[N][N];
+
+// 点a 与 点b之间有 一条边 c
+w[a][b] = c;
+```
+
+
+##### 边集数组
+```c++
+struct edge {int u, v, w;} e[M];
+
+// 点a 与 点b之间有 一条边 c
+e[i] = {a, b, c};
+```
+
+##### 邻接表
+```c++
+struct edge {v, w};
+vector<edge> e[N];
+
+// 点a 与 点b之间有 一条边 c
+e[a].push_back({b, c});
+```
+
+
+##### 链式邻接表
+```c++
+struct edge {u, v, w};
+// 边集
+vector<edge> e;
+// 记录点所对应所有的边的索引
+vector<int> h[N];
+
+// 点a 与 点b之间有 一条边 c
+e.push_back({a, b, c});
+h[a].push_back(e.size() - 1);
+```
+
+
+##### 链式前向星
+```c++
+// 边集，next记录下一条边的索引
+struct edge {u, v, next} e[M];
+// h[i]记录每个顶点头边索引，idx记录总创建的边的索引
+int h[N], idx;
+
+// 点a 与 点b之间有 一条边 c
+e[idx] = {a, b, h[a]};
+h[a] = idx++;
+```
+
+
+### 拓扑排序
 
 
 
