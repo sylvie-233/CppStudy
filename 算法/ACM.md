@@ -4,9 +4,85 @@
 
 ## 一、基础算法
 
+### 快速幂
+```c++
+// 计算 a^b % mod
+long long qpow(long long a, long long b, long long mod) {
+    long long res = 1;
+    a %= mod;  // 先对底数取模，防止溢出
+
+    while (b) {
+        if (b & 1) res = res * a % mod;  // 如果当前位是1，则乘上a
+        a = a * a % mod;  // a 每轮平方
+        b >>= 1;  // b 右移一位，相当于除以2
+    }
+
+    return res;
+}
+```
+
+对b进行二进制拆分
+
+
+
 ### 搜索
 
+DFS、BFS
 记忆化搜索：对递归树做了剪枝，搜索过的子树不再重复搜索，直接返回存储值
+
+
+#### DFS
+```c++
+vector<int> g[N];
+bool vis[N]; // 是否访问过
+
+void dfs(int u) {
+    vis[u] = true;
+
+    for (int v : g[u]) {
+        if (!vis[v]) {
+            dfs(v);
+        }
+    }
+}
+```
+
+深度优先搜索
+
+
+
+#### BFS
+```c++
+vector<int> g[N];
+bool vis[N]; // 是否访问过
+int dist[N]; // 起点到每个点的最短距离
+
+void bfs(int start) {
+    memset(vis, 0, sizeof vis);
+    memset(dist, -1, sizeof dist);
+
+    queue<int> q;
+    q.push(start);
+    vis[start] = true;
+    dist[start] = 0;
+
+    while (!q.empty()) {
+        int u = q.front(); q.pop();
+
+        for (int v : g[u]) {
+            if (!vis[v]) {
+                vis[v] = true;
+                dist[v] = dist[u] + 1;
+                q.push(v);
+            }
+        }
+    }
+}
+```
+
+宽度优先搜索
+
+
 
 
 ### 二分查找
@@ -449,8 +525,338 @@ h[a] = idx++;
 ```
 
 
-### 拓扑排序
+### 树
 
+
+#### 树的重心
+
+
+
+### 拓扑排序
+```c++
+vector<int> graph[N];
+int indegree[N]; // 每个点的入度
+int n; // n个点
+
+vector<int> topo_sort() {
+    queue<int> q;
+    vector<int> res;
+
+    // 所有入度为0的点加入队列
+    for (int i = 1; i <= n; i++) {
+        if (indegree[i] == 0)
+            q.push(i);
+    }
+
+    while (!q.empty()) {
+        int u = q.front(); q.pop();
+        res.push_back(u);
+        for (int v : graph[u]) {
+            indegree[v]--;
+            if (indegree[v] == 0)
+                q.push(v);
+        }
+    }
+
+    // 检查是否存在环（不合法）
+    if (res.size() < n)
+        return {}; // 有环，无法拓扑排序
+
+    return res;
+}
+```
+
+
+有向无环图（DAG）,（基于 BFS / 入度法）
+
+
+### 最短路
+
+
+
+#### Dijkstra 单源最短路
+```c++
+vector<PII> g[N]; // 邻接表：g[u] = {v, w}
+int dist[N];      // dist[i] 表示源点到 i 的最短路径
+bool vis[N];      // vis[i] 表示点 i 是否已经确定最短距离
+int n, m;
+
+void dijkstra(int start) {
+    memset(dist, 0x3f, sizeof dist);
+    memset(vis, 0, sizeof vis);
+    dist[start] = 0;
+
+    priority_queue<PII, vector<PII>, greater<PII>> q;
+    q.push({0, start}); // {距离, 点编号}
+
+    while (!q.empty()) {
+        auto [d, u] = q.top(); q.pop();
+
+        if (vis[u]) continue;
+        vis[u] = true;
+
+        for (auto [v, w] : g[u]) {
+            if (dist[v] > dist[u] + w) {
+                dist[v] = dist[u] + w;
+                q.push({dist[v], v});
+            }
+        }
+    }
+}
+```
+
+
+一旦某个点的最短路径被确定，就不会再被更新
+适用于边权非负的图（负边可能导致最短路“提前被确定”，错过更优路径）
+
+#### Floyd 任意两点最短路径
+```c++
+const int INF = INT_MAX;  // 用于表示无穷大，无法到达的点
+
+void floydWarshall(int n, vector<vector<int>>& dist) {
+    // dist[i][j] 表示从节点 i 到节点 j 的最短路径长度
+
+    // 通过中间节点 k 更新路径
+    for (int k = 0; k < n; ++k) {
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (dist[i][k] != INF && dist[k][j] != INF) {
+                    dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j]);
+                }
+            }
+        }
+    }
+}
+```
+
+
+
+#### Bellman-Ford 有负权边
+```c++
+const int INF = 0x3f3f3f3f;
+
+struct Edge {
+    int u, v, w;
+};
+
+int dist[N];
+int n, m;
+vector<Edge> edges;
+
+bool bellman_ford(int start) {
+    memset(dist, 0x3f, sizeof dist);
+    dist[start] = 0;
+
+    // 最多做 n-1 次松弛
+    for (int i = 1; i < n; i++) {
+        bool updated = false;
+        for (auto e : edges) {
+            if (dist[e.u] < INF && dist[e.v] > dist[e.u] + e.w) {
+                dist[e.v] = dist[e.u] + e.w;
+                updated = true;
+            }
+        }
+        if (!updated) break; // 没更新，提前结束
+    }
+
+    // 再做一次：检查负环
+    for (auto e : edges) {
+        if (dist[e.u] < INF && dist[e.v] > dist[e.u] + e.w) {
+            return false; // 有负环
+        }
+    }
+
+    return true; // 无负环
+}
+```
+
+
+对于一个 n 个点的图，最多只需要 进行 n-1 次松弛（最长路径就是n-1条边），就能求出所有最短路径（前提：无负环）
+
+
+#### SPFA 带负权最短路
+```c++
+const int INF = 0x3f3f3f3f;
+struct Edge {
+    int to, weight;
+};
+vector<Edge> g[N];
+
+int dist[N];      // 最短路径数组
+bool in_queue[N]; // 是否在队列中
+int cnt[N];       // 统计每个点入队次数（判负环）
+int n, m;
+
+bool spfa(int start) {
+    memset(dist, 0x3f, sizeof dist);
+    memset(in_queue, 0, sizeof in_queue);
+    memset(cnt, 0, sizeof cnt);
+
+    queue<int> q;
+    dist[start] = 0;
+    q.push(start);
+    in_queue[start] = true;
+    cnt[start]++;
+
+    while (!q.empty()) {
+        int u = q.front(); q.pop();
+        in_queue[u] = false;
+
+        for (auto &e : g[u]) {
+            int v = e.to, w = e.weight;
+            if (dist[v] > dist[u] + w) {
+                dist[v] = dist[u] + w;
+                if (!in_queue[v]) {
+                    q.push(v);
+                    in_queue[v] = true;
+                    cnt[v]++;
+                    // 根据Bellman-Ford，最终进行n-1次松弛操作，每个点最多入队n-1次
+                    if (cnt[v] >= n) return false; // 存在负环
+                }
+            }
+        }
+    }
+
+    return true; // 没有负环
+}
+```
+
+
+SPFA（Shortest Path Faster Algorithm）最短路径算法模板，它是 Bellman-Ford 的队列优化版本
+
+
+
+### 最小生成树
+
+最小生成树（MST，Minimum Spanning Tree） 是一个图论中的概念，它是一个连接图中所有顶点的树，并且树中所有边的权重之和最小
+
+#### Kruskal
+```c++
+struct Edge {
+    int u, v, weight;
+    Edge(int u, int v, int w) : u(u), v(v), weight(w) {}
+    bool operator<(const Edge& other) const {
+        return weight < other.weight;  // 按边权排序
+    }
+};
+
+// 并查集（Union-Find）用于判断是否形成环
+class UnionFind {
+public:
+    vector<int> parent, rank;
+
+    UnionFind(int n) {
+        parent.resize(n);
+        rank.resize(n, 0);
+        iota(parent.begin(), parent.end(), 0);  // 初始化，每个点的父节点是它自己
+    }
+
+    // 查找根节点，路径压缩
+    int find(int x) {
+        if (parent[x] != x) {
+            parent[x] = find(parent[x]);  // 路径压缩
+        }
+        return parent[x];
+    }
+
+    // 合并两个集合
+    bool unionSets(int x, int y) {
+        int rootX = find(x);
+        int rootY = find(y);
+
+        if (rootX != rootY) {
+            // 按秩合并，保持树的平衡
+            if (rank[rootX] > rank[rootY]) {
+                parent[rootY] = rootX;
+            } else if (rank[rootX] < rank[rootY]) {
+                parent[rootX] = rootY;
+            } else {
+                parent[rootY] = rootX;
+                rank[rootX]++;
+            }
+            return true;
+        }
+        return false;
+    }
+};
+
+int kruskal(int n, vector<Edge>& edges) {
+    UnionFind uf(n);
+    int mstWeight = 0;
+    int edgesUsed = 0;
+
+    // 将所有边按权重从小到大排序
+    sort(edges.begin(), edges.end());
+
+    for (auto& edge : edges) {
+        int u = edge.u, v = edge.v, weight = edge.weight;
+        
+        // 如果没有形成环，则将该边加入生成树
+        if (uf.unionSets(u, v)) {
+            mstWeight += weight;
+            edgesUsed++;
+        }
+
+        // 如果生成树包含 n-1 条边，则结束
+        if (edgesUsed == n - 1) {
+            break;
+        }
+    }
+
+    // 如果生成树包含的边数小于 n-1，说明图不连通
+    if (edgesUsed != n - 1) {
+        cout << "图不连通，无法生成最小生成树！" << endl;
+        return -1;
+    }
+
+    return mstWeight;  // 返回最小生成树的权重和
+}
+```
+
+Kruskal 算法通过贪心策略，每次选择权重最小的边，逐渐构建生成树，直到生成树包含所有节点
+
+
+
+#### Prim
+```c++
+// Prim 算法
+int prim(int n, vector<vector<int>>& graph) {
+    vector<int> minCost(n, INF);  // 记录从生成树到其他点的最小边权
+    vector<bool> inMST(n, false); // 记录某个节点是否在生成树中
+    minCost[0] = 0;  // 从第一个节点开始
+    int mstWeight = 0;
+
+    for (int i = 0; i < n; ++i) {
+        // 找到当前不在生成树中的最小权边
+        int u = -1;
+        for (int v = 0; v < n; ++v) {
+            if (!inMST[v] && (u == -1 || minCost[v] < minCost[u])) {
+                u = v;
+            }
+        }
+
+        // 如果所有的节点都已加入生成树且图不连通，返回 -1
+        if (minCost[u] == INF) {
+            return -1;
+        }
+
+        // 将 u 节点加入生成树
+        inMST[u] = true;
+        mstWeight += minCost[u];
+
+        // 更新邻接节点的最小边权
+        for (int v = 0; v < n; ++v) {
+            if (!inMST[v] && graph[u][v] != INF && graph[u][v] < minCost[v]) {
+                minCost[v] = graph[u][v];
+            }
+        }
+    }
+
+    return mstWeight;  // 返回最小生成树的总权重
+}
+```
+
+Prim 算法是从某个节点开始，逐渐将图中的其他节点通过最小权重的边连接到生成树中，直到所有节点都被连接
 
 
 
