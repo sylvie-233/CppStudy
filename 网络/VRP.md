@@ -1,6 +1,6 @@
 # VRP
 
-`华为数通路由交换HCNA/HCIA：P49`
+`华为数通路由交换HCNA/HCIA：P56`
 
 ## 基础介绍
 
@@ -30,7 +30,17 @@ eNSP:
             broadcast: # 允许arp广播
                 enable:
         bgp:
-        dhcp:
+        dhcp: #   
+            select:
+                global:
+                interface:
+            server:
+                excluded-ip-address:
+                dns-list:
+                lease:
+                static-bind:
+                    mac-address:
+                    ip-address:
         dir:
         display:
             arp:
@@ -136,6 +146,8 @@ eNSP:
             mac-address: # mac地址表
             port: # 显示 端口
                 vlan:
+            stp:
+                brief:
             vlan:
         gvrp:
             registration: # 
@@ -176,7 +188,17 @@ eNSP:
                     ip:
                         addr: # vlanif接口，三层交换机
         stp:
+            cost: # 路径开销
             disable:
+            mode: # STP模式
+                mstp:
+                rstp:
+                stp:
+            pathcost-standard: # 开销标准
+            port:
+                priority:
+            priority: # BID优先级
+            root: # 指定主备根桥
         vlan:
             batch: # 批量创建vlan
 ```
@@ -289,8 +311,71 @@ GVRP注册模式：
 #### STP
 
 生成树协议
+STP 使用一种分布式算法，交换机之间通过发送 BPDU（Bridge Protocol Data Unit） 的消息，协商出：
+- 谁是根桥（Root Bridge）
+- 到根桥的最短路径（即最小代价）
+- 哪些端口需要阻塞（Blocking）来防止环路
+
+1. 根桥选举：比对 BPDU → 确定 Root Bridge
+2. 每个交换机找 Root Port（通向根桥的最佳路径）
+3. 每条链路确定 Designated Port（通往段上代价最小）
+4. 非 Root/Designated 的端口进入 Blocking 状态
+5. 最终形成一棵树状结构，无环路
 
 
+
+核心概念：
+- 根桥 Root Bridge	整个网络的参考点（唯一），通过 BPDU 选举产生
+- 根端口 Root Port	非根桥设备通向根桥的最短路径的那个端口（每个非根桥设备只有一个）
+- 指定端口 Designated Port	某段链路上负责转发 BPDU 的端口（每条链路有一个）
+- 非指定端口 Non-designated Port	被阻塞的端口（Blocking），避免环路
+
+
+
+
+消除环路（通过构造一棵树来消除交换网络中的环路）
+1. 选举一台根桥
+2. 选举一个根端口
+3. 选举指定端口
+4. 阻塞剩余端口
+
+根桥选举：
+1. 每个交换机起初都认为自己是根桥，发送 BPDU。
+2. 交换机通过比对 BPDU 中的 Root Bridge ID，选择出一个“最小”的作为根桥。
+3. 比较顺序：
+    1. 根桥 ID（优先级 + MAC地址）
+    2. 路径成本
+    3. 发送者桥 ID
+    4. 端口 ID
+
+端口角色：
+- Root Port（根端口）：通向根桥的最短路径端口
+- Designated Port（指定端口）：某段链路上负责转发 BPDU 的端口
+- Blocked Port（阻塞端口）：为了避免环路而阻塞的端口
+
+端口状态：
+- Disabled	关闭状态，端口不工作
+- Blocking	接收 BPDU，不转发数据帧
+- Listening	接收、转发 BPDU，不学习 MAC，不转发数据
+- Learning	开始学习 MAC 表，但不转发数据
+- Forwarding	正常工作状态，收发数据和 BPDU
+- (旧) Broken	Cisco 扩展状态
+
+
+![STP协议BPDU字段](../assets/STP协议BPDU字段.png)
+
+BPDU：桥协议数据单元
+- 配置BPDU
+- 拓扑变更通告BPDU
+
+桥ID、端口ID
+路径开销、根路径开销
+
+BID最小的成为根桥
+
+![STP延时](../assets/STP延时.png)
+
+根桥故障、重新选举
 
 
 
@@ -479,6 +564,23 @@ Master网络选举：用于减少邻接关系
 远程连接
 
 
+### DHCP
+
+动态主机配置协议
+自动配置IP
+
+UDP封装，服务端67、客户端68
+DHCP组成：客户端、服务端、中继
+
+DHCP报文类型：
+- DISCOVER：寻找DHCP服务器
+- OFFER：响应DISCOVER报文
+- REQUEST：客户端请求配置确认
+- ACK：
+- NAK：
+- RELEASE：客户端释放地址
+
+
 ### TCP
 
 传输层协议
@@ -504,6 +606,10 @@ syn发给你的序列号、ack确认你给我的
 
 
 ![UDP协议](../assets/UDP协议.png)
+
+
+
+
 
 
 ### ICMP
