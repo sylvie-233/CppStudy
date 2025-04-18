@@ -718,6 +718,15 @@ f[i][j]记录 a[1~i]和b[1~j]的最长公共子序列
 
 ### 图
 
+割点：在一个 无向图 中，如果删除某个点（以及它的所有边），图的连通分量数增加，那么这个点就是割点
+桥（割边）：在一个 无向图 中，删除某条边后，图的连通分量数增加，那么这条边就是桥
+边双连通分量：
+点双连通分量
+
+
+
+
+
 #### 图的存储
 
 
@@ -1332,6 +1341,66 @@ seg.build(1, 1, n);
 
 树链剖分的目标是：把一棵树拆成尽量少的“段”，以便我们可以用线段树去维护路径上的值
 ![树链剖分](../assets/hld树链剖分.png)
+
+
+### Tarjan 有向图强连通分量
+
+Tarjan 算法的目标是：把图中所有的强连通分量找出来
+找有向图的环
+Tarjan 算法基于 DFS 遍历，并通过时间戳、low 值、栈，来判断哪些点属于同一个 SCC
+
+在有向图中，如果一组点之间两两可达（也就是每个点都能走到其他所有点），那么这一组点就构成一个 强连通分量
+
+```c++
+const int N = 1e5 + 10;
+vector<int> graph[N];
+// dfn[u]：时间戳：节点 u 是第几个被访问的
+// low[u]：能回溯到的最小 dfn
+// 找到 low[u] == dfn[u]，说明 u 是某个强连通分量的根
+int dfn[N], low[N], timestamp;
+// inStack[u]：标记 u 是否在栈中
+bool inStack[N];
+// stack：当前递归栈中的点
+stack<int> stk;
+int scc_id[N], scc_cnt;
+vector<int> scc[N]; // scc[i] 存储第 i 个强连通分量里的节点
+
+void tarjan(int u) {
+    dfn[u] = low[u] = ++timestamp;
+    stk.push(u);
+    inStack[u] = true;
+
+    for (int v : graph[u]) {
+        if (!dfn[v]) {
+            tarjan(v);
+            // 回溯更新
+            low[u] = min(low[u], low[v]);
+        } else if (inStack[v]) {
+            // 环,更新能直接到的最小编号
+            low[u] = min(low[u], dfn[v]);
+        }
+    }
+
+    // 回溯到根节点,弹栈
+    if (dfn[u] == low[u]) {
+        ++scc_cnt;
+        int v;
+        do {
+            v = stk.top(); stk.pop();
+            inStack[v] = false;
+            scc_id[v] = scc_cnt;
+            scc[scc_cnt].push_back(v);
+        } while (v != u);
+    }
+}
+
+void find_scc(int n) {
+    timestamp = scc_cnt = 0;
+    for (int i = 1; i <= n; i++) {
+        if (!dfn[i]) tarjan(i);
+    }
+}
+```
 
 
 

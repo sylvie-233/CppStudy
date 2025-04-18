@@ -1,6 +1,6 @@
 # VRP
 
-`华为数通路由交换HCNA/HCIA：P56`
+``
 
 ## 基础介绍
 
@@ -9,6 +9,19 @@
 
 
 段 -> 包 -> 帧 -> 比特
+
+IA必备技能：
+- Telnet
+- Trunk
+- ACL
+- PPP
+- STP
+- VLAN
+- OSPF
+- DHCP
+- NAT
+- DNS
+
 
 
 ## 核心内容
@@ -25,7 +38,16 @@ eNSP:
                 service-type: # 可用服务 
                     telnet:
         acl: # 访问控制
-            rule:
+            name: # acl名称
+            rule: # 规则编号越小越优先匹配，配置先细后出
+                deny:
+                permit:
+                    source: 
+                    tcp:
+                    destination-port:
+                        eq:
+                        range:
+                time-range:
         arp:
             broadcast: # 允许arp广播
                 enable:
@@ -77,7 +99,20 @@ eNSP:
                 link-protocol:
         ip:
             route-static: # 配置 静态路由
-        nat:
+        nat: # 
+            address-group: # NAT地址池
+            outbound: # 关联ACL和一个NAT地址池
+                address-group:
+                no-pat:
+            server:
+                global:
+                inside:
+                protocol:
+                    tcp:
+            static: # 静态NAT，直接映射
+                enable:
+                global: 
+                    inside:
         ntp-service:
         quit: # 退出
         ospf:
@@ -94,6 +129,16 @@ eNSP:
             timer: # 
                 hello:
             network: # 区域宣告，加入ospf
+        ppp:
+            authentication-mode: # ppp认证方式
+                pap:
+                chap:
+            chap:
+                password:
+                user:
+            pap:
+                local-user:
+                password:
         reset: # 重启进程
             ospf process:
         rip: # 开启rip进程，缺省为1
@@ -121,6 +166,9 @@ eNSP:
                 enable:
         tftp:
             get:
+        traffic-filter: # 接口过滤
+            inbound:
+            outbound:
         user-interface: # 用户连接接口
             console:
             vty:
@@ -381,6 +429,11 @@ BID最小的成为根桥
 
 #### ACL
 
+访问控制列表
+![acl控制](../assets/acl控制.png)
+
+ACL编号、Rule规则编号
+
 
 
 ### 路由器
@@ -520,6 +573,20 @@ Master网络选举：用于减少邻接关系
 
 
 #### BGP
+
+
+
+#### NAT
+
+网络地址转换
+静态NAT
+
+##### NAPT
+
+允许多个内部地址映射到同一个公有地址的不同端口
+
+
+##### Easy IP
 
 
 
@@ -664,6 +731,18 @@ MTU: 46~1500
 
 MAC地址：48位、6字节
 
+### HDLC
 
 
 ### PPP
+
+
+NCP网络控制层协议
+LCP链路控制协议
+
+
+PAP密码认证协议
+
+
+
+CHAP挑战握手认证协议
