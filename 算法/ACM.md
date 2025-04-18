@@ -24,6 +24,13 @@ long long qpow(long long a, long long b, long long mod) {
 对b进行二进制拆分
 
 
+### 排序
+
+
+
+#### 冒泡排序
+
+
 
 ### 搜索
 
@@ -102,26 +109,167 @@ int binarySearch(int left, int right, int v) {
 
 
 
+### 差分
+差分 是一个非常实用又简单的技巧，特别适合处理：
+- 区间加
+- 区间减
+- 快速构造前缀变化
+- 离线处理区间操作
+
+
+#### 一维差分
+```c++
+const int N = 1e5 + 10;
+int a[N], b[N];
+int n, m;
+
+// 差分原理，构造前缀和还原该元素，
+// l 加上、r + 1减去
+void add(int l, int r, int k) {
+    b[l] += k;
+    b[r + 1] -= k;
+}
+
+int main() {
+    cin >> n >> m;
+    for (int i = 1; i <= n; ++i) {
+        cin >> a[i];
+        b[i] = a[i] - a[i - 1];  // 差分初始化
+    }
+
+    while (m--) {
+        int l, r, k;
+        cin >> l >> r >> k;
+        add(l, r, k);
+    }
+
+    // 还原
+    for (int i = 1; i <= n; ++i) {
+        b[i] += b[i - 1];
+        cout << b[i] << " ";
+    }
+}
+```
+
+
+
+#### 二维差分
+```c++
+const int N = 1010;
+int a[N][N], b[N][N];
+int n, m, q;
+
+void insert(int x1, int y1, int x2, int y2, int k) {
+    b[x1][y1] += k;
+    b[x2 + 1][y1] -= k;
+    b[x1][y2 + 1] -= k;
+    b[x2 + 1][y2 + 1] += k;
+}
+
+int main() {
+    cin >> n >> m >> q;
+    
+    // 输入原始矩阵 a，并初始化差分矩阵 b
+    for (int i = 1; i <= n; ++i)
+        for (int j = 1; j <= m; ++j) {
+            cin >> a[i][j];
+            insert(i, j, i, j, a[i][j]); // 初始值单点插入到差分数组中
+        }
+
+    // 多次操作：对矩形加值
+    while (q--) {
+        int x1, y1, x2, y2, k;
+        cin >> x1 >> y1 >> x2 >> y2 >> k;
+        insert(x1, y1, x2, y2, k);
+    }
+
+    // 用二维前缀和还原最终矩阵
+    for (int i = 1; i <= n; ++i)
+        for (int j = 1; j <= m; ++j)
+            b[i][j] = b[i][j] + b[i - 1][j] + b[i][j - 1] - b[i - 1][j - 1];
+
+    // 输出结果矩阵
+    for (int i = 1; i <= n; ++i) {
+        for (int j = 1; j <= m; ++j)
+            cout << b[i][j] << " ";
+        cout << endl;
+    }
+
+    return 0;
+}
+```
+
+![二维差分原理](../assets/二维差分原理.png)
+
+
+
+### 分块
+```c++
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+const int N = 1e5 + 10;
+int a[N], block[N];  // a 是原数组，block 是每块的和
+int n, m;
+int len;  // 每块的大小
+int belong[N]; // belong[i] 表示下标 i 属于哪一块
+
+void build() {
+    len = sqrt(n);  // 每块长度
+    for (int i = 1; i <= n; ++i) {
+        belong[i] = (i - 1) / len + 1;
+        block[belong[i]] += a[i];
+    }
+}
+
+void update(int x, int k) {
+    block[belong[x]] += k - a[x];
+    a[x] = k;
+}
+
+int query(int l, int r) {
+    int res = 0;
+    if (belong[l] == belong[r]) {
+        for (int i = l; i <= r; ++i) res += a[i];
+    } else {
+        for (int i = l; belong[i] == belong[l]; ++i) res += a[i];
+        for (int i = belong[l] + 1; i < belong[r]; ++i) res += block[i];
+        for (int i = r; belong[i] == belong[r]; --i) res += a[i];
+    }
+    return res;
+}
+```
+
+分块是一种典型的空间换时间的数据结构技巧，非常适合处理：
+- 区间查询（区间和、最大最小值、异或等）
+- 区间修改（加值、赋值等）
+- 单点修改 + 区间查询
+
+
+### 偏序
+
+
+#### 一维偏序
+
+
+#### 二维偏序
+
+
+
+#### 三维偏序
+
+
 
 ## 二、数据结构
 
 
-### 树
-
-
-#### 树的重心
 
 
 
-### 二叉树
 
-二叉树先序遍历：`中 -> 左 -> 右`
 
-二叉树中序遍历：`左 -> 中 -> 右`，一个节点在访问时它的左子树一定访问完了
 
-二叉树后序遍历：`左 -> 右 -> 中`，一个节点在访问时它的左右子树一定都访问完了
-
-![二叉树遍历](../assets/二叉树遍历.png)
 
 
 ### ST表
@@ -164,6 +312,26 @@ ST 表（Sparse Table，稀疏表）是用于解决 可重复贡献问题 的数
 
 
 ### 单调栈
+```c++
+// 找每个元素左边第一个比它小的数
+vector<int> a;  // 输入数组
+stack<int> stk; // 单调递增栈（栈中存的是下标）
+vector<int> left(a.size());
+
+for (int i = 0; i < a.size(); ++i) {
+    while (!stk.empty() && a[stk.top()] >= a[i]) {
+        stk.pop();
+    }
+    left[i] = stk.empty() ? -1 : stk.top(); // 左边第一个比它小的
+    stk.push(i);
+}
+```
+
+单调栈是一种保持单调性的栈结构，适合用于处理：
+- 前/后一个更大/更小的元素
+- 连续区间的最大/最小值贡献
+- 直方图最大矩形
+
 
 - 下一个更高的数据在哪？
 - 小于(大于)该值的数据都出栈
@@ -172,6 +340,28 @@ ST 表（Sparse Table，稀疏表）是用于解决 可重复贡献问题 的数
 
 
 ### 单调队列
+```c++
+// 滑动窗口最大值（递减队列）
+vector<int> maxSlidingWindow(vector<int>& nums, int k) {
+    deque<int> dq;  // 存下标，维护一个单调递减的队列
+    vector<int> res;
+
+    for (int i = 0; i < nums.size(); ++i) {
+        // 1. 删除队尾所有比当前小的元素（它们不会再成为最大）
+        while (!dq.empty() && nums[dq.back()] <= nums[i]) {
+            dq.pop_back();
+        }
+        dq.push_back(i);
+
+        // 2. 移除滑出窗口的元素（下标小于 i - k + 1）
+        if (dq.front() <= i - k) dq.pop_front();
+
+        // 3. 当前窗口形成时记录最大值（队首就是最大）
+        if (i >= k - 1) res.push_back(nums[dq.front()]);
+    }
+    return res;
+}
+```
 
 - 滑动窗口最值
 
@@ -433,6 +623,66 @@ ll query(int x1,int y1,int x2,int y2)//查询矩阵的哈希值
 ![二维hash原理](../assets/二维hash原理.png)
 
 
+### 字典树
+```c++
+const int ALPHABET_SIZE = 26; // 字母表大小，26 表示只处理小写英文字母
+const int N = 1e5 + 10;        // 结点数上限（可以按题目规模调）
+
+struct Trie {
+    int ch[N][ALPHABET_SIZE]; // ch[x][c] 表示节点 x 的第 c 个儿子
+    int cnt[N];               // cnt[x] 表示以该点为结尾的字符串数量
+    int tot = 1;              // 总节点数（0 是根节点）
+
+    void insert(const string &s) {
+        int u = 0; // 从根开始
+        for (char c : s) {
+            int c_idx = c - 'a';
+            if (!ch[u][c_idx]) ch[u][c_idx] = tot++;
+            u = ch[u][c_idx];
+        }
+        cnt[u]++; // 最后一个点标记字符串结尾
+    }
+
+    bool search(const string &s) {
+        int u = 0;
+        for (char c : s) {
+            int c_idx = c - 'a';
+            if (!ch[u][c_idx]) return false;
+            u = ch[u][c_idx];
+        }
+        return cnt[u] > 0; // 只有插入过的字符串才算匹配成功
+    }
+
+    int countPrefix(const string &prefix) {
+        int u = 0;
+        for (char c : prefix) {
+            int c_idx = c - 'a';
+            if (!ch[u][c_idx]) return 0;
+            u = ch[u][c_idx];
+        }
+
+        return dfs_count(u);
+    }
+
+    int dfs_count(int u) {
+        int res = cnt[u];
+        for (int i = 0; i < ALPHABET_SIZE; i++) {
+            if (ch[u][i]) {
+                res += dfs_count(ch[u][i]);
+            }
+        }
+        return res;
+    }
+};
+```
+
+字典树（Trie，又叫前缀树）是专门用来处理字符串集合的问题，特别适用于以下情况：
+- 插入多个字符串
+- 查询一个字符串是否存在
+- 统计前缀个数
+- 支持前缀自动补全 / 匹配
+- 有时也可以配合异或操作处理数值（比如最大异或对）
+
 
 
 
@@ -527,8 +777,111 @@ h[a] = idx++;
 
 ### 树
 
+#### 二叉树遍历
+
+二叉树先序遍历：`中 -> 左 -> 右`
+二叉树中序遍历：`左 -> 中 -> 右`，一个节点在访问时它的左子树一定访问完了
+二叉树后序遍历：`左 -> 右 -> 中`，一个节点在访问时它的左右子树一定都访问完了
+
+![二叉树遍历](../assets/二叉树遍历.png)
+
+
+#### 树的直径
+
+树中最长路径
+DFS两遍
+- 任意一点 DFS 找最远点 A
+- 以 A 为起点 DFS 找最远点 B
+- A-B 的距离即为直径
+```c++
+void dfs(int u, int fa, int dist) {
+    if (dist > max_dist) {
+        max_dist = dist;
+        node = u;
+    }
+    for (int v : G[u]) {
+        if (v != fa) dfs(v, u, dist + 1);
+    }
+}
+```
+
 
 #### 树的重心
+
+在一棵 无根树 中，重心（centroid）是这样的一个点：
+- 删除这个点后，整棵树会被分成若干棵子树；
+- 在这些子树中，最大的子树的节点数最少；
+换句话说，这个点使得删除后“最大块”尽可能小。
+```c++
+int n;
+vector<int> G[N];
+bool vis[N];
+// 用 size[u] 表示以 u 为根的子树大小；
+int size[N];
+// 用 maxp[u] 表示删掉 u 之后，最大的子树节点数
+int maxp[N];
+int centroid;
+int min_part = INF;
+
+// 从任意一点开始 DFS（例如节点 1）；
+void dfs(int u, int parent) {
+    size[u] = 1;
+    maxp[u] = 0;
+
+    for (int v : G[u]) {
+        if (v == parent || vis[v]) continue;
+
+        dfs(v, u);
+        size[u] += size[v];
+        maxp[u] = max(maxp[u], size[v]);
+    }
+
+    maxp[u] = max(maxp[u], n - size[u]);  // 分割后其余部分
+    // 希望最大的子树尽量小，maxp[u]考虑到了两边大小
+    if (maxp[u] < min_part) {
+        min_part = maxp[u];
+        centroid = u;
+    }
+}
+```
+
+#### LCA 树的最近公共祖先
+
+倍增法（O(n log n) 预处理，O(log n) 查询）
+RMQ + 欧拉序（O(1) 查询）
+Tarjan 离线并查集（离线多次 LCA 查询）
+
+```c++
+int fa[N][LOG]; // fa[u][k] = u 的第 2^k 级祖先
+int depth[N];
+
+void dfs(int u, int father) {
+    fa[u][0] = father;
+    depth[u] = depth[father] + 1;
+    for (int k = 1; (1 << k) <= depth[u]; ++k) {
+        fa[u][k] = fa[fa[u][k - 1]][k - 1];
+    }
+    for (int v : G[u]) {
+        if (v != father) dfs(v, u);
+    }
+}
+
+int lca(int u, int v) {
+    // 保证后面计算深度：u>=v
+    if (depth[u] < depth[v]) swap(u, v);
+    // 向上提升u
+    for (int k = LOG - 1; k >= 0; --k)
+        if (depth[fa[u][k]] >= depth[v])
+            u = fa[u][k];
+    if (u == v) return u;
+    for (int k = LOG - 1; k >= 0; --k)
+        if (fa[u][k] != fa[v][k]) {
+            u = fa[u][k];
+            v = fa[v][k];
+        }
+    return fa[u][0];
+}
+```
 
 
 
@@ -857,6 +1210,128 @@ int prim(int n, vector<vector<int>>& graph) {
 ```
 
 Prim 算法是从某个节点开始，逐渐将图中的其他节点通过最小权重的边连接到生成树中，直到所有节点都被连接
+
+
+### 树链剖分
+
+树链剖分（Heavy-Light Decomposition，简称 HLD）是树上路径查询/修改类题的王炸算法，尤其在支持路径上快速查询、修改、赋值的时候非常高效
+
+将一棵树剖成若干条“重链”和“轻边”，使得：
+    - 每条重链内的节点在 DFS 序中是连续的；
+    - 在链上用线段树/树状数组维护；
+    - 任意一条路径最多跳 O(log n) 次
+```c++
+const int N = 1e5 + 10;
+
+int n;                      // 节点数
+vector<int> G[N];           // 邻接表
+
+int fa[N], dep[N], sz[N];   // 父节点，深度，子树大小
+int son[N];                 // 重儿子
+int top[N];                 // 所在重链的顶点
+int dfn[N], rnk[N], timer;  // DFS序，rnk 是 dfn 的逆映射
+int val[N];                 // 原始点权（如需维护点权）
+
+// 第一次 DFS，预处理大小和重儿子
+void dfs1(int u, int father) {
+    fa[u] = father;
+    dep[u] = dep[father] + 1;
+    sz[u] = 1;
+    int max_size = -1;
+
+    for (int v : G[u]) {
+        if (v == father) continue;
+        dfs1(v, u);
+        sz[u] += sz[v];
+        if (sz[v] > max_size) {
+            son[u] = v;
+            max_size = sz[v];
+        }
+    }
+}
+
+// 第二次 DFS，建 DFS 序和重链 top 标记
+void dfs2(int u, int topf) {
+    dfn[u] = ++timer;
+    rnk[timer] = u;
+    top[u] = topf;
+
+    if (!son[u]) return;
+    dfs2(son[u], topf);  // 重儿子继续用同一条链
+
+    for (int v : G[u]) {
+        if (v != fa[u] && v != son[u]) {
+            dfs2(v, v);  // 轻儿子开新链
+        }
+    }
+}
+
+// 线段树维护
+struct SegmentTree {
+    int tree[N << 2];
+
+    void build(int id, int l, int r) {
+        if (l == r) {
+            tree[id] = val[rnk[l]]; // 原始权值
+            return;
+        }
+        int mid = (l + r) >> 1;
+        build(id<<1, l, mid);
+        build(id<<1|1, mid+1, r);
+        tree[id] = tree[id<<1] + tree[id<<1|1]; // 示例为求和
+    }
+
+    int query(int id, int l, int r, int ql, int qr) {
+        if (ql <= l && r <= qr) return tree[id];
+        int mid = (l + r) >> 1;
+        int res = 0;
+        if (ql <= mid) res += query(id<<1, l, mid, ql, qr);
+        if (qr > mid)  res += query(id<<1|1, mid+1, r, ql, qr);
+        return res;
+    }
+
+    void update(int id, int l, int r, int pos, int val) {
+        if (l == r) {
+            tree[id] = val;
+            return;
+        }
+        int mid = (l + r) >> 1;
+        if (pos <= mid) update(id<<1, l, mid, pos, val);
+        else update(id<<1|1, mid+1, r, pos, val);
+        tree[id] = tree[id<<1] + tree[id<<1|1];
+    }
+} seg;
+
+// 路径查询（u 到 v 的路径和）
+int query_path(int u, int v) {
+    int res = 0;
+    while (top[u] != top[v]) {
+        if (dep[top[u]] < dep[top[v]]) swap(u, v);
+        res += seg.query(1, 1, n, dfn[top[u]], dfn[u]);
+        u = fa[top[u]];
+    }
+    if (dep[u] > dep[v]) swap(u, v);
+    res += seg.query(1, 1, n, dfn[u], dfn[v]);
+    return res;
+}
+
+// 修改单点
+void update_point(int u, int val) {
+    seg.update(1, 1, n, dfn[u], val);
+}
+
+// 初始化调用顺序
+// 假设点权已经赋值 val[1...n]
+dfs1(1, 0);
+dfs2(1, 1);
+seg.build(1, 1, n);
+```
+
+重链：每个节点往“子树最大的儿子”连出的边叫重边，连起来就是重链；
+轻链：剩下的那些儿子连接的边叫轻边，连起来是轻链。
+
+树链剖分的目标是：把一棵树拆成尽量少的“段”，以便我们可以用线段树去维护路径上的值
+![树链剖分](../assets/hld树链剖分.png)
 
 
 
