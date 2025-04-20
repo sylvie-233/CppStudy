@@ -23,6 +23,8 @@ long long qpow(long long a, long long b, long long mod) {
 
 对b进行二进制拆分
 
+### 大数运算
+
 
 ### 排序
 
@@ -106,6 +108,9 @@ int binarySearch(int left, int right, int v) {
     return -1;
 }
 ```
+
+
+搜索零点问题
 
 
 
@@ -245,6 +250,9 @@ int query(int l, int r) {
 - 区间查询（区间和、最大最小值、异或等）
 - 区间修改（加值、赋值等）
 - 单点修改 + 区间查询
+
+
+### 莫队
 
 
 ### 偏序
@@ -712,6 +720,186 @@ f[i][j]记录 a[1~i]和b[1~j]的最长公共子序列
 ### 背包DP
 
 
+#### 01背包
+```c++
+int n, W;
+vector<int> w(n), v(n);
+vector<int> dp(W + 1, 0);
+
+for (int i = 0; i < n; ++i) {
+    // 倒序防止取同一个物品2次
+    for (int j = W; j >= w[i]; --j) {
+        dp[j] = max(dp[j], dp[j - w[i]] + v[i]);
+    }
+}
+
+```
+
+问题描述：有 n 个物品和一个容量为 W 的背包，每个物品有重量 w[i] 和价值 v[i]。每个物品只能选一次，问最大总价值是多少
+
+
+#### 完全背包
+```c++
+int n, W;
+vector<int> w(n), v(n);
+vector<int> dp(W + 1, 0);
+
+for (int i = 0; i < n; ++i) {
+    // 可重复取，所以正序
+    for (int j = w[i]; j <= W; ++j) {
+        dp[j] = max(dp[j], dp[j - w[i]] + v[i]);
+    }
+}
+```
+
+问题描述：与 0/1 背包类似，但每种物品可以选任意次。
+
+
+
+#### 多重背包
+```c++
+// 朴素解法
+int[] dp = new int[V + 1];
+for (int i = 1; i <= N; i++) {
+    for (int j = V; j >= v[i]; j--) {  // 逆序（避免重复计算）
+        for (int k = 0; k <= s[i] && k * v[i] <= j; k++) {
+            dp[j] = Math.max(dp[j], dp[j - k * v[i]] + k * w[i]);
+        }
+    }
+}
+
+// 枚举次数，进行01背包
+// 二进制优化
+for (int i = 0; i < n; ++i) {
+    int count = c[i];
+    for (int k = 1; count > 0; k <<= 1) {
+        int actual = min(k, count);
+        int weight = actual * w[i];
+        int value = actual * v[i];
+        // 对指定次数进行01背包
+        for (int j = W; j >= weight; --j) {
+            dp[j] = max(dp[j], dp[j - weight] + value);
+        }
+        count -= actual;
+    }
+}
+```
+
+问题描述：每个物品最多可以选 c[i] 次
+二进制优化原理：
+
+
+
+### 状压DP
+```c++
+// 一般适用于 n <= 20 的子集问题
+int n;
+int dp[1 << N];  // dp[mask] 表示子集 mask 对应的最优解
+memset(dp, INF, sizeof dp);
+dp[0] = 初始值;
+
+for (int mask = 0; mask < (1 << n); ++mask) {
+    for (int i = 0; i < n; ++i) {
+        if (!(mask >> i & 1)) {  // i 还没选
+            int new_mask = mask | (1 << i);
+            dp[new_mask] = min(dp[new_mask], dp[mask] + cost(mask, i));
+        }
+    }
+}
+```
+
+状压 DP（状态压缩动态规划）是当状态空间很大，但可以用二进制位表示子集/状态的情况下，用一个整数（通常是 bitmask）来表示状态。
+
+
+### 数位DP
+```c++
+// 统计 ≤ 某个数的所有数字中，多少个“不包含数字 4”的数
+
+// 记忆化数组：dp[pos][0] 表示某种状态下从 pos 开始的结果
+int dp[20][2][2];  // dp[pos][is_limit][is_leading_zero]
+vector<int> digits;
+
+// 数字拆位（高到低）
+vector<int> get_digits(int x) {
+    vector<int> digits;
+    while (x) {
+        digits.push_back(x % 10);
+        x /= 10;
+    }
+    reverse(digits.begin(), digits.end());
+    return digits;
+}
+
+// pos 表示当前处理的是数字的第 pos 位（从高位到低位）
+// is_limit 表示当前位是否受限制（是否和原来的数一样）（不受限则是 0~9）,决定当前为可选的最大值
+// is_leading_zero 表示是否还处于前导零阶段
+int dfs(int pos, bool is_limit, bool is_leading_zero) {
+    // base case：如果已经处理完所有的数位，返回 1 表示找到一个符合要求的数
+    if (pos == digits.size()) return 1;
+
+    // 使用记忆化的 DP 数组来缓存结果
+    if (dp[pos][is_limit][is_leading_zero] != -1)
+        return dp[pos][is_limit][is_leading_zero];
+
+    int max_digit = is_limit ? digits[pos] : 9;  // 受限时当前位的最大数字，否者最大为 9
+    int result = 0;
+
+    for (int d = 0; d <= max_digit; ++d) {
+        if (d == 4) continue;  // 不能选 4
+        result += dfs(pos + 1, is_limit && (d == max_digit), is_leading_zero && (d == 0));
+    }
+
+    return dp[pos][is_limit][is_leading_zero] = result;
+}
+
+int solve(int x) {
+    digits = get_digits(x);
+    memset(dp, -1, sizeof(dp));
+    return dfs(0, true, true);
+}
+```
+解决各种“1~n 中满足某种数位限制的数字个数”类问题
+
+
+### 树型DP
+```c++
+const int MAX_N = 10000;  // 最大节点数
+vector<int> tree[MAX_N];   // 存储树的邻接表
+
+int dp[MAX_N];  // 存储节点的状态或答案，具体含义根据题目而定
+
+// 记忆化搜索，统计子树大小
+void dfs(int node, int parent) {
+    // 递归到当前节点
+    dp[node] = 1;  // 假设初始化状态为1，具体根据题目要求
+
+    // 遍历当前节点的所有子节点
+    for (int child : tree[node]) {
+        if (child != parent) {  // 确保不会回到父节点
+            dfs(child, node);  // 深度优先搜索递归调用
+            // 根据子节点的状态更新当前节点的状态
+            dp[node] += dp[child];  // 例如求子树节点的总数
+        }
+    }
+}
+
+int n;  // 树的节点数
+cin >> n;
+
+// 读取树的边
+for (int i = 0; i < n - 1; ++i) {
+    int u, v;
+    cin >> u >> v;
+    tree[u].push_back(v);
+    tree[v].push_back(u);
+}
+
+// 从根节点开始 DFS
+dfs(1, -1);  // 假设节点 1 为根节点，父节点为 -1（没有父节点）
+
+// 输出结果，这里假设我们要输出根节点的答案
+cout << dp[1] << endl;
+```
 
 
 ## 五、图论
