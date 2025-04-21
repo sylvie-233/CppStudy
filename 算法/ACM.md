@@ -25,12 +25,128 @@ long long qpow(long long a, long long b, long long mod) {
 
 ### 大数运算
 
+#### 大数加法
+```c++
+string add(string a, string b) {
+    // 保证a的长度长
+    if (a.length() < b.length()) swap(a, b);
+
+    // c进位
+    int carry = 0;
+    string res = "";
+
+    // 低位到高位
+    reverse(a.begin(), a.end());
+    reverse(b.begin(), b.end());
+
+    for (size_t i = 0; i < a.size(); ++i) {
+        int sum = a[i] - '0' + carry;
+        if (i < b.size()) sum += b[i] - '0';
+        res += (sum % 10) + '0';
+        carry = sum / 10;
+    }
+    if (carry) res += carry + '0';
+    reverse(res.begin(), res.end());
+    return res;
+}
+```
+
+#### 大数减法
+```c++
+string sub(string a, string b) {
+    // 借位
+    int borrow = 0;
+    string res = "";
+
+    // 低位到高位
+    reverse(a.begin(), a.end());
+    reverse(b.begin(), b.end());
+
+    for (size_t i = 0; i < a.size(); ++i) {
+        int diff = a[i] - '0' - borrow;
+        if (i < b.size()) diff -= b[i] - '0';
+        if (diff < 0) {
+            diff += 10;
+            borrow = 1;
+        } else borrow = 0;
+        res += diff + '0';
+    }
+
+    // 清空高位0
+    while (res.size() > 1 && res.back() == '0') res.pop_back();
+
+    reverse(res.begin(), res.end());
+    return res;
+}
+```
+
+#### 大数乘法
+```c++
+string mul(string a, string b) {
+    vector<int> res(a.size() + b.size(), 0);
+    reverse(a.begin(), a.end());
+    reverse(b.begin(), b.end());
+
+    for (size_t i = 0; i < a.size(); ++i)
+        for (size_t j = 0; j < b.size(); ++j)
+            res[i + j] += (a[i] - '0') * (b[j] - '0');
+
+    // 数值拍平
+    for (size_t i = 0; i < res.size(); ++i) {
+        if (res[i] >= 10) {
+            res[i + 1] += res[i] / 10;
+            res[i] %= 10;
+        }
+    }
+
+    // 清空高位0
+    while (res.size() > 1 && res.back() == 0) res.pop_back();
+
+    string ans;
+    // 拼接字符串
+    for (int i = res.size() - 1; i >= 0; --i)
+        ans += res[i] + '0';
+    return ans;
+}
+```
+
+
+#### 大数除法
+```c++
+// 大数除以小精度整数
+string div(string a, int b, int &r) {
+    string res;
+    r = 0;
+
+    // 高位到低位除法
+    for (int i = 0; i < a.size(); ++i) {
+        r = r * 10 + (a[i] - '0');
+        res += (r / b) + '0';
+        r %= b;
+    }
+    // 去前导零
+    size_t pos = res.find_first_not_of('0');
+    return (pos == string::npos) ? "0" : res.substr(pos);
+}
+```
+
 
 ### 排序
 
 
 
 #### 冒泡排序
+
+
+### 离散化
+```c++
+vector<int> vals(a + 1, a + n + 1);
+sort(vals.begin(), vals.end());
+vals.erase(unique(vals.begin(), vals.end()), vals.end());
+
+for (int i = 1; i <= n; ++i)
+    a[i] = lower_bound(vals.begin(), vals.end(), a[i]) - vals.begin();
+```
 
 
 
@@ -253,16 +369,194 @@ int query(int l, int r) {
 
 
 ### 莫队
+```c++
+// 问题：给定一个数组 a[1..n] 和 m 次查询，每次查询区间 [l, r] 中不同数字的个数
+
+const int N = 1e5 + 10;
+// cnt[x] 表示值为 x 的数有几个（用于去重）
+// ans[N] 每个查询的答案
+//  block 分块大小 = sqrt(n)
+int a[N], cnt[N], ans[N], block;
+int n, m, res = 0;
+
+struct Query {
+    int l, r, id;
+    bool operator<(const Query &q) const {
+        int lb = l / block, rb = q.l / block;
+        // 首先根据l的块编号排序
+        if (lb != rb) return lb < rb;
+
+        // 奇偶块交替让 R 指针来回少一点，从而让滑动距离更短
+        return (lb & 1) ? (r < q.r) : (r > q.r); // 可选奇偶优化
+    }
+} q[N];
+
+// 添加一个位置
+void add(int x) {
+    if (cnt[x]++ == 0) ++res;
+}
+
+// 删除一个位置
+void remove(int x) {
+    if (--cnt[x] == 0) --res;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    cin >> n >> m;
+    block = sqrt(n); // 每块大小
+    for (int i = 1; i <= n; ++i) cin >> a[i];
+
+    for (int i = 0; i < m; ++i) {
+        cin >> q[i].l >> q[i].r;
+        q[i].id = i;
+    }
+
+    sort(q, q + m);
+
+    int l = 1, r = 0;
+    for (int i = 0; i < m; ++i) {
+        while (l > q[i].l) add(a[--l]);
+        while (r < q[i].r) add(a[++r]);
+        while (l < q[i].l) remove(a[l++]);
+        while (r > q[i].r) remove(a[r--]);
+
+        ans[q[i].id] = res;
+    }
+
+    for (int i = 0; i < m; ++i)
+        cout << ans[i] << '\n';
+
+    return 0;
+}
+```
+
+离线查询
+
+莫队算法（Mo's Algorithm）：常用于离线区间查询问题的高效解法，特别适合处理：
+- 区间种类数统计（如：区间不同数字个数）
+- 区间众数、区间最大最小值等（需稍加改写）
+- 数据不修改，纯查询（不支持动态修改）
+
+核心原理：避免重复计算
+不用每次都从头计算每个区间，而是通过维护一个滑动窗口 [L, R]，只对变化部分进行加删操作！
 
 
 ### 偏序
 
 
 #### 一维偏序
+```c++
+// 问题：求前缀中小于当前数的个数
 
+const int N = 1e5 + 10;
+// a[x] 原数组
+// c[x] 树状数组计数器，用于动态求前缀和（求比a[i]值小的）
+int a[N], c[N], res[N];
+int n;
+
+int lowbit(int x) { return x & -x; }
+
+void add(int x, int v) {
+    while (x < N) c[x] += v, x += lowbit(x);
+}
+
+int query(int x) {
+    int res = 0;
+    while (x > 0) res += c[x], x -= lowbit(x);
+    return res;
+}
+
+int main() {
+    cin >> n;
+    for (int i = 1; i <= n; ++i) cin >> a[i];
+
+    // 离散化，避免树状数组无法存储
+    vector<int> nums(a + 1, a + n + 1);
+    sort(nums.begin(), nums.end());
+    nums.erase(unique(nums.begin(), nums.end()), nums.end());
+    for (int i = 1; i <= n; ++i)
+        a[i] = lower_bound(nums.begin(), nums.end(), a[i]) - nums.begin() + 1;
+
+    // 树状数组统计
+    for (int i = 1; i <= n; ++i) {
+        res[i] = query(a[i] - 1);  // 查询有多少比当前小
+        add(a[i], 1);              // 加入当前值
+    }
+
+    for (int i = 1; i <= n; ++i)
+        cout << res[i] << " ";
+    cout << "\n";
+}
+```
+
+离散化 + 树状数组
+
+
+问题：给你一个长度为 n 的数组 a[1..n]，你需要对每个位置 i 统计满足某个条件的前缀/后缀信息，比如：
+- 有多少个 j < i，使得 a[j] < a[i]
 
 #### 二维偏序
+```c++
+// 题目： 给定 n 个点 (x, y)，求对于每个点，有多少个点 (x', y') 满足：x' ≤ x 且 y' ≤ y —— 即它的左下角有多少点
+struct Point {
+    int x, y, id;
+    bool operator<(const Point &p) const {
+        if (x != p.x) return x < p.x;
+        return y < p.y;
+    }
+};
 
+const int N = 1e5 + 10;
+int bit[N], ans[N], n;
+Point a[N];
+
+int lowbit(int x) { return x & -x; }
+
+void add(int x, int v) {
+    while (x < N) bit[x] += v, x += lowbit(x);
+}
+
+int query(int x) {
+    int res = 0;
+    while (x > 0) res += bit[x], x -= lowbit(x);
+    return res;
+}
+
+int main() {
+    cin >> n;
+    for (int i = 1; i <= n; ++i) {
+        cin >> a[i].x >> a[i].y;
+        a[i].id = i;
+    }
+
+    // 离散化 y，保证数组数组可以存储y的值
+    vector<int> ys;
+    for (int i = 1; i <= n; ++i) ys.push_back(a[i].y);
+    sort(ys.begin(), ys.end());
+    ys.erase(unique(ys.begin(), ys.end()), ys.end());
+    for (int i = 1; i <= n; ++i)
+        a[i].y = lower_bound(ys.begin(), ys.end(), a[i].y) - ys.begin() + 1;
+
+    // 排序 + 树状数组
+    // 排序后保证了x的升序，接下来只需要对y进行统计即可
+    sort(a + 1, a + n + 1);
+    for (int i = 1; i <= n; ++i) {
+        ans[a[i].id] = query(a[i].y);
+        add(a[i].y, 1);
+    }
+
+    for (int i = 1; i <= n; ++i)
+        cout << ans[i] << "\n";
+}
+```
+
+离线、排序 + 树状数组
+1. 按 x 升序排序（固定第一维）
+2. 在排序后的过程中，用树状数组维护 y 的信息
+3. 每次查询 y 的前缀和，就能统计当前点左下角有多少点
 
 
 #### 三维偏序
