@@ -229,6 +229,9 @@ int binarySearch(int left, int right, int v) {
 搜索零点问题
 
 
+#### 三分查找
+
+
 
 ### 差分
 差分 是一个非常实用又简单的技巧，特别适合处理：
@@ -1887,6 +1890,105 @@ void find_scc(int n) {
 
 
 ## 六、数论
+
+
+### GCD 最大公约数
+```c++
+int gcd(int a, int b) {
+    return b == 0 ? a : gcd(b, a % b);
+}
+```
+
+欧几里得算法
+
+
+#### GCD EX 扩展欧几里得
+```c++
+int exgcd(int a, int b, int &x, int &y) {
+    // b = 0, gcd(a, b) = a
+    // a * 1 + b * 0 = a
+    if (b == 0) { x = 1; y = 0; return a; }
+
+    // 递归调用
+    int d = exgcd(b, a % b, y, x);
+    y -= (a / b) * x;
+    return d;
+}
+```
+
+解 ax + by = gcd(a, b)
+![扩展欧几里得算法](../assets/扩展欧几里得算法.png)
+
+
+### 素数筛
+
+#### 埃氏筛法
+```c++
+const int N = 1e6 + 10;
+bool is_prime[N];
+
+// 筛出 2~n 中所有素数
+void eratosthenes(int n) {
+    fill(is_prime, is_prime + n + 1, true); // 全部先标记为素数
+    is_prime[0] = is_prime[1] = false;
+
+    for (int i = 2; i * i <= n; i++) {
+        if (is_prime[i]) {
+            // 埃氏筛法优化 从i * (i + n) 开始，因为比i小的因子在前面被筛了
+            // 保证每次筛选掉的数i是最小的因子,偏序优化
+            for (int j = i * i; j <= n; j += i) {
+                is_prime[j] = false;
+            }
+        }
+    }
+}
+```
+
+
+
+
+
+#### 欧拉筛法
+```c++
+const int N = 1e6 + 10;
+int primes[N], cnt = 0;
+bool is_prime[N]; // 标记是否为合数（false 表示素数）
+
+void euler_sieve(int n) {
+    fill(is_prime, is_prime + n + 1, true);
+    is_prime[0] = is_prime[1] = false;
+
+    for (int i = 2; i <= n; ++i) {
+        if (is_prime[i]) primes[cnt++] = i;
+        for (int j = 0; j < cnt && i * primes[j] <= n; ++j) {
+            is_prime[i * primes[j]] = false;
+            // 保证每个合数只被最小质因子筛一次
+            // i 能模 primes[j], 说明能被i筛掉的一定能被primes[j]筛掉,且primes[j]比i小,所以不用继续了
+            if (i % primes[j] == 0) break; 
+        }
+    }
+}
+```
+
+保证每个合数只被最小质因子筛一次
+
+
+
+### 模逆元
+
+
+
+#### 费马小定理
+
+
+
+#### 扩展欧几里得法
+
+
+### 欧拉函数
+
+
+### 中国剩余定理
 
 
 ## 七、线性代数
