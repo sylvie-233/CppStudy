@@ -1981,6 +1981,8 @@ void euler_sieve(int n) {
 #### 费马小定理
 
 
+![费马小定理求逆元](../assets/费马小定理求逆元.png)
+
 
 #### 扩展欧几里得法
 
@@ -1995,6 +1997,47 @@ void euler_sieve(int n) {
 
 
 ## 八、组合数学
+
+### 大组合数求模
+```c++
+using ll = long long;
+const int N = 2e5 + 10;
+const int MOD = 1e9 + 7;
+
+ll fac[N], inv[N];
+
+// 快速幂
+ll qpow(ll a, ll b) {
+    ll res = 1;
+    while (b) {
+        if (b & 1) res = res * a % MOD;
+        a = a * a % MOD;
+        b >>= 1;
+    }
+    return res;
+}
+
+// 初始化阶乘和逆元
+// fac[i] = i! mod 1e9+7
+// inv[i] = i!^-1 mod 1e9+7
+void init() {
+    fac[0] = 1;
+    for (int i = 1; i < N; ++i)
+        fac[i] = fac[i - 1] * i % MOD;
+    inv[N - 1] = qpow(fac[N - 1], MOD - 2);
+    for (int i = N - 2; i >= 0; --i)
+        inv[i] = inv[i + 1] * (i + 1) % MOD;
+}
+
+// C(n, k) = fac[n] * inv[k] * inv[n-k]
+ll C(int n, int k) {
+    if (k < 0 || k > n) return 0;
+    return fac[n] * inv[k] % MOD * inv[n - k] % MOD;
+}
+```
+
+![大组合数求模逆元](../assets/大组合数求模逆元.png)
+![逆元递推](../assets/逆元递推.png)
 
 
 
