@@ -11,12 +11,49 @@ GUI框架
 
 
 
-
-
-
 ## QtQuick
 ```yaml
 QtQuick:
+    Controls:
+        Extras:
+            Popup:
+            ToolTip:
+        Material:
+        Universal:
+        ApplicationWindow:
+        Button:
+        CheckBox:
+        ComboBox:
+        Dial:
+        Dialog:
+        Label:
+        Menu:
+        MenuBar:
+        ProgressBar:
+        RadioButton:
+        Slider: 
+        SpinBox:
+        Switch:
+        TabBar:
+        TabButton:
+        TextArea:
+        TextField:
+        ToolButton:
+        ToolTip:
+        ScrollBar:
+        ScrollView:
+    Layouts:
+        ColumnLayout:
+        GridLayout:
+        RowLayout:
+    Shapes:
+        Shape:
+        ShapePath:
+    Animation:
+    Behavior:
+    Flickable:
+    FocusScope:
+    GridView:
     Image: # 图片
         anchors:
             bottom:
@@ -26,8 +63,22 @@ QtQuick:
             horizontalCenter:
         id:
         source:
+    Item:
+    Keys:
+    ListView:
+    Loader:
     MouseArea:
         onClicked:
+    NumberAnimation:
+    ParallelAnimation:
+    PathView:
+    Rectangle:
+    SequentialAnimation:
+    State:
+    Text:
+    Timer:
+    TouchArea:
+    Transition:
     Window: # 窗口
         height:
         visible:
