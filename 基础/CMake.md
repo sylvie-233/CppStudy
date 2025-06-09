@@ -8,10 +8,23 @@ library库文件管理、include头文件管理
 配置阶段、生成阶段
 
 
+### 安装目录
 
-
-
-
+#### 生成目录
+```yaml
+/build:
+    /CmakeFiles:
+        /xxx.dir: # 不同的target有不同的dir目录、makefile
+    ALL_BUILD.vcxproj:
+    ALL_BUILD_vcxproj.filters:
+    cmake_install.cmake:
+    CMakeCache.txt:
+    XXX.sln:
+    XXX.vcxproj:
+    XXX.vcxproj:
+    XERO_CHECK.vcxproj.filters:
+    XERO_CHECK.vcxproj.filters:
+```
 
 
 ### cmake
@@ -31,6 +44,7 @@ cmake:
         rm:
     -G: # 指定生成器
         MinGW Makefiles:
+        Unix Makefiles:
     -P: # 运行cmake脚本
     -S: # 指定源文件目录 CMakeLists.txt所在目录
     --build: # 执行构建，生成可执行文件
@@ -280,21 +294,14 @@ CMakeLists.txt:
     write_basic_package_version_file(): # 生成模块ConfigVersion.cmake版本信息文件
 ```
 
-#### 生成目录
+
+#### CMakePresets.json
 ```yaml
-/build:
-    /CmakeFiles:
-        /xxx.dir: # 不同的target有不同的dir目录、makefile
-    ALL_BUILD.vcxproj:
-    ALL_BUILD_vcxproj.filters:
-    cmake_install.cmake:
-    CMakeCache.txt:
-    XXX.sln:
-    XXX.vcxproj:
-    XXX.vcxproj:
-    XERO_CHECK.vcxproj.filters:
-    XERO_CHECK.vcxproj.filters:
+CMakePresets.json:
+
 ```
+
+
 
 ### ctest
 ```yaml
@@ -354,11 +361,26 @@ cpack:
 
 ### find_package()
 
+
+支持Module、Config两种模式
+- FindXxx.cmake
+- XxxConfig.cmake
+
+
+模块查找成功自动设置变量：
+- PackageName_FOUND：找到了就是True,没找到就是未设定
+- PackageName_INCLUDE_DIR：即头文件目录
+- PackageName_LIBRARY：即库文件
+
+模块搜索路径：
+- PackageName_ROOT
+- PackageName_DIR
+- CMAKE_PREFIX_PATH: cmake模块搜索路径前缀
+
+
+
 Config.cmake、ConfigVersion.cmake
 XXX_DIR模块路径
-
-
-
 
 
 

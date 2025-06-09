@@ -1,10 +1,8 @@
 # C++
 
 >
->`C++标准库速览：P48`
+>``
 >
-
-
 
 
 ## 基础介绍
@@ -19,7 +17,6 @@ RAII（Resource Acquisition Is Initialization）：通过对象的生命周期�
 - 锁管理（std::lock_guard, std::unique_lock）
 
 
-
 C++ STL 四大类：
 1. 容器 (Containers)： 容器是用来存储和管理数据的对象，它们定义了数据结构的形式。例如，std::vector、std::list、std::map、std::unordered_map 等。
     - 顺序容器：如 std::vector、std::deque、std::list 等，数据的存储顺序与插入顺序一致。
@@ -31,6 +28,10 @@ C++ STL 四大类：
 4. 函数对象和适配器 (Function Objects and Adapters)： 函数对象是可调用的对象，可以像函数一样使用。STL 中有许多标准的函数对象，例如 std::less、std::greater 等，它们通常与算法一起使用。
     - 适配器用于对容器、迭代器等进行封装，以便提供额外的功能。例如，std::stack 是容器适配器，std::priority_queue 是一个基于堆的容器适配器
 
+容器适配器：
+- stack:
+- queue:
+- priority_queue:
 
 
 支持自定义字面量
@@ -42,18 +43,79 @@ C++ STL 四大类：
 ### gcc
 ```yaml
 gcc:
-
+    -c: # 只进行编译，不进行链接，生成目标文件（.o）
+    -f: # 编译特性
+        no-builtin:
+        PIC: # 生成位置无关的代码，常用于动态库的编译
+    -g: # 生成调试信息，适用于 gdb 等调试器使用 
+    -j: # 并行编译
+    -l: # 链接的库
+    -o: # 指定输出文件名
+    -v: # 显示详细的编译过程
+    -D: # 定义宏
+    -I: # 指定头文件的搜索路径
+    -L: # 指定库文件搜索路径
+    -O: # 编译优化（默认级别）
+    -S: # 将 C 源文件编译为汇编代码（.s 文件）
+    -W: # 警告信息
+    -shared: # 编译生成共享库（.so）
+    -static: # 编译时链接静态库，而不是动态库
+    -std: # 指定编译器使用的 C 标准（如 c99、c11、gnu99）
 ```
 
+
+GNU 编译器套件中的 C/C++ 编译器
 
 
 ### g++
 ```yaml
 g++:
     -c: # 编程生成中间文件(.o)
+    -f: # 控制语言特性
+        no-rtti:
+    -g:
+    -j:
+    -l:
     -o: # 编译可执行文件(.exe)，指定输出文件名
+    -v:
+    -D:
+    -E:
     -I: # 头文件位置
-    --std: # C++标准库版本
+    -L:
+    -O:
+    -S:
+    -W:
+    -nostartfiles:
+    -nostdlib:
+    -shared:
+    -static:
+    -std: # C++标准库版本
+```
+
+GNU 编译器套件（GCC）中用于编译 C++ 程序的编译器
+与 gcc 类似，但 g++ 直接处理 C++ 源代码，并自动链接 C++ 标准库
+
+### gdb
+```yaml
+gdb:
+    ---
+    backtrace:
+    break:
+    catch:
+    continue:
+    delete:
+    enable:
+    finish:
+    handle:
+    info:
+        registers:
+    next:
+    print:
+    quit:
+    run:
+    set:
+    step:
+    thread:
 ```
 
 
@@ -754,6 +816,20 @@ std:
             size(): # 数组长度
     <version>:
 ```
+
+标准库核心：
+- 字符串
+- 数据结构
+- 算法
+- 智能指针
+- 并发
+- 文件系统（I/O）
+
+
+
+
+
+
 ### 数据类型
 ```yaml
 Data Types:
@@ -1606,3 +1682,10 @@ std::cout << Factorial<5>::value << std::endl;  // 输出 120
 
 
 
+### 扩展机制
+
+
+#### RTTI
+
+
+运行时类型信息
