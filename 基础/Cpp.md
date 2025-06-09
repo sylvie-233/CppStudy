@@ -1,7 +1,7 @@
 # C++
 
 >
->``
+>`一起来学C++: P4`
 >
 
 
@@ -990,6 +990,7 @@ Control Flow:
     constinit:
     constval:
     final: # 标记不允许重写、不允许继承
+    namespace: # 定义命名空间
     noexcept: # 标记方法无异常
     override: # 标记重写
     thread_local: # 线程局部对象
@@ -1000,11 +1001,12 @@ Control Flow:
     decltype(): # 获取type类型，编译时
     dynamic_cast():
     reinterpret_cast():
-    sizeof():
+    sizeof(): # 内存字节数
     static_assert(): # 编译时断言
     static_cast():
     typeid(): # 获取type id，运行时
     using: # 命名空间引入、类型别名
+        namespace:
     if ... else if ... else ...: # 条件判断，支持初始化语句
     for ...: # 循环遍历、增强for循环
 ```
@@ -1013,7 +1015,14 @@ Control Flow:
 支持结构化绑定：解构，可用于结构体
 
 
+#### Macro
+```yaml
+Macro:
+    #define: # 定义宏
+    #include: # 引入头文件
+```
 
+宏
 
 
 #### Type Cast
