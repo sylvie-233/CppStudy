@@ -1,6 +1,6 @@
 # C++
 
->
+>`现代 C++ 教程：高速上手 C++ 11/14/17/20: https://changkun.de/modern-cpp/zh-cn/03-runtime/`
 >`一起来学C++: P4`
 >
 
@@ -776,7 +776,7 @@ std:
         is_integral<>: # 整数类型
         is_pointer<>:
         is_reference<>:
-        is_same<>: # 类型相等is_same<T, U>
+        is_same<>: # 类型相等is_same<T, U>，常配合decltype使用
             value: # 比较结果，bool
         remove_pointer<>: # 移除指针
             type:
@@ -986,9 +986,11 @@ Control Flow:
     const: # 常量
     concept: # 自定义概念，模板参数约束
         requires():
-    constexpr: # 常量表达式，编译时就计算某些常量的值，可定义常量表达式函数
+    constexpr: # 常量表达式，编译时就计算某些常量的值，可定义常量表达式函数，constexpr 修饰的函数支持递归
     constinit:
     constval:
+    extern:
+        C: # 使用C语言特性
     final: # 标记不允许重写、不允许继承
     namespace: # 定义命名空间
     noexcept: # 标记方法无异常
@@ -998,7 +1000,7 @@ Control Flow:
     alignas(): # 位对齐
     alignof(): # 
     const_cast():
-    decltype(): # 获取type类型，编译时
+    decltype(): # 获取type类型，编译时类型推导，表达式类型推导
     dynamic_cast():
     reinterpret_cast():
     sizeof(): # 内存字节数
@@ -1018,7 +1020,9 @@ Control Flow:
 #### Macro
 ```yaml
 Macro:
+    __cplusplus: # C++代码
     #define: # 定义宏
+    #ifdef ... #endif: # 宏条件判断
     #include: # 引入头文件
 ```
 
@@ -1026,7 +1030,12 @@ Macro:
 
 
 #### Type Cast
-```c++
+```yaml
+TypeCast:
+    const_cast:
+    dynamic_cast:
+    reinterpret_cast:
+    static_cast:
 ```
 
 类型转换
@@ -1035,6 +1044,60 @@ Macro:
 - const_cast：去除或添加const限定符，只改变常量属性，不改变对象类型
 - reinterpret_cast：强制类型转换，低级别内存操作，不进行类型检查，直接进行内存级别的转换
 
+
+#### If Enhancement
+```c++
+// 将临时变量放到 if 语句内
+if (const std::vector<int>::iterator itr = std::find(vec.begin(), vec.end(), 3);
+    itr != vec.end()) {
+    *itr = 4;
+}
+
+// 
+template<typename T>
+auto print_type_info(const T& t) {
+    if constexpr (std::is_integral<T>::value) {
+        return t + 1;
+    } else {
+        return t + 0.001;
+    }
+}
+```
+
+if增强
+if语句中定义临时变量，和go语言类似
+
+if constexpr 编译时分支判断
+
+
+
+
+#### For Enhancement
+```c++
+std::vector<int> vec = {1, 2, 3, 4};
+
+// 只读for循环
+for (auto element : vec)
+    std::cout << element << std::endl; // read only
+
+// 可写for循环
+for (auto &element : vec) {
+    element += 1;                      // writeable
+}
+```
+
+
+
+#### Structured Binding
+```c++
+std::tuple<int, double, std::string> f() {
+    return std::make_tuple(1, 2.3, "456");
+}
+
+auto [x, y, z] = f();
+```
+
+tuple元组结构化绑定
 
 
 
@@ -1056,16 +1119,6 @@ try {
 
 
 
-#### RValue Reference
-```c++
-int&& x = 10;  // x 是一个右值引用，绑定到右值 10
-```
-
-右值引用
-- && 主要用于实现 移动语义（Move Semantics） 和 完美转发（Perfect Forwarding）
-- 允许程序员操作右值（临时对象）并优化资源管理
-
-用于需要区分左值、右值的情况
 
 
 #### Attibute
@@ -1083,6 +1136,24 @@ int&& x = 10;  // x 是一个右值引用，绑定到右值 10
 ### 函数
 
 使用 auto 支持函数类型后置
+
+
+#### Initializer List
+```c++
+class MagicFoo {
+public:
+    std::vector<int> vec;
+    MagicFoo(std::initializer_list<int> list) {
+        for (std::initializer_list<int>::iterator it = list.begin();
+             it != list.end(); ++it)
+            vec.push_back(*it);
+    }
+};
+
+MagicFoo magicFoo = {1, 2, 3, 4, 5};
+```
+
+初始化列表
 
 
 
@@ -1115,9 +1186,33 @@ auto modifyX = [x]() mutable {  // 使用 mutable 允许修改捕获的副本
 auto add(int a, int b) -> int {
     return a + b;  // 返回类型会被推导为 int
 }
+
+template<typename T, typename U>
+auto add2(T x, U y) -> decltype(x+y){
+    return x + y;
+}
+
+// 函数转发类型推导
+decltype(auto) look_up_a_string_1() {
+    return lookup();
+}
 ```
 
-可实现函数类型后置
+可实现函数类型后置，还可配合decltype自动类型推导
+decltype(auto) 主要用于对转发函数或封装的返回类型进行推导
+
+
+
+
+#### ConstExpr Function
+
+
+常量表达式函数
+
+
+
+
+
 
 
 
@@ -1166,6 +1261,57 @@ public:
 using继承构造函数
 
 
+
+
+##### Delegate Constructor
+```c++
+class Base {
+public:
+    int value1;
+    int value2;
+    Base() {
+        value1 = 1;
+    }
+    Base(int value) : Base() { // 委托 Base() 构造函数
+        value2 = value;
+    }
+};
+```
+
+
+委托构造
+构造函数可以在同一个类中一个构造函数调用另一个构造函数，从而达到简化代码的目的
+
+
+
+
+##### Extends Constructor
+```c++
+class Base {
+public:
+    int value1;
+    int value2;
+    Base() {
+        value1 = 1;
+    }
+    Base(int value) : Base() { // 委托 Base() 构造函数
+        value2 = value;
+    }
+};
+
+class Subclass : public Base {
+public:
+    using Base::Base; // 继承构造
+};
+
+Subclass s(3);
+```
+
+
+继承构造
+构造函数如果需要继承是需要将参数一一传递的，这将导致效率低下。C++11 利用关键字 using 引入了继承构造函数的概念
+
+
 #### Destructor
 ```c++
 class MyClass {
@@ -1187,6 +1333,22 @@ public:
 
 默认析构函数
 如果没有显式定义析构函数，C++ 编译器会自动生成一个默认的析构函数。默认析构函数会销毁类的成员变量，但不会释放动态分配的资源，因此如果类使用了动态内存管理（如 new），则必须显式定义析构函数
+
+
+
+#### Default Function
+```c++
+class Magic {
+    public:
+    Magic() = default; // 显式声明使用编译器生成的构造
+    Magic& operator=(const Magic&) = delete; // 显式声明拒绝编译器生成构造
+    Magic(int magic_number);
+}
+```
+
+
+
+默认函数
 
 
 
@@ -1267,6 +1429,22 @@ public:
 抽象类的定义通过至少包含一个 纯虚函数 来实现。纯虚函数是没有实现的虚函数，必须在派生类中被重写。纯虚函数使用 = 0 进行声明
 
 
+#### Enum Class
+```c++
+enum class new_enum : unsigned int {
+    value1,
+    value2,
+    value3 = 100,
+    value4 = 100
+};
+```
+
+
+枚举类
+强类型枚举
+
+
+
 
 ### 模块
 
@@ -1292,7 +1470,10 @@ myFunction();  // 也可以直接使用 myFunction()
 - 匿名命名空间：即没有名字的命名空间，是 C++ 中的一种特殊命名空间，它的作用范围局限于当前文件，因此它常常用于隐藏全局变量或函数，避免它们与其他文件中的标识符发生冲突
 
 
+#### Module
 
+
+模块
 
 
 ### 智能指针
@@ -1316,6 +1497,21 @@ std::unique_ptr、std::shared_ptr 和 std::weak_ptr
 - std::unique_ptr：表示对对象的唯一所有权，不能被复制，只有一个 unique_ptr 可以拥有一个对象。当 unique_ptr 被销毁时，它会自动释放内存
 - std::shared_ptr：表示共享所有权。多个 shared_ptr 可以指向同一个对象，引用计数机制确保当最后一个 shared_ptr 被销毁时，内存才会被释放
 - std::weak_ptr：不改变对象的引用计数，通常用于解决循环引用问题，辅助管理 shared_ptr
+
+
+
+
+#### RValue Reference
+```c++
+int&& x = 10;  // x 是一个右值引用，绑定到右值 10
+```
+
+右值引用
+- && 主要用于实现 移动语义（Move Semantics） 和 完美转发（Perfect Forwarding）
+- 允许程序员操作右值（临时对象）并优化资源管理
+
+用于需要区分左值、右值的情况
+
 
 
 #### Move
@@ -1552,6 +1748,142 @@ Box<int> intBox(10);  // int 类型的 Box
 
 
 
+#### External Template
+```c++
+extern template class std::vector<double>; // 不在该当前编译文件中实例化模板
+```
+
+外部模板
+C++11 引入了外部模板，扩充了原来的强制编译器在特定位置实例化模板的语法，使我们能够显式的通知编译器何时进行模板的实例化
+
+
+
+#### TypeAlias Template
+```c++
+template<typename T, typename U>
+class MagicType {
+public:
+    T dark;
+    U magic;
+};
+
+// 定义类型别名模板
+template<typename T>
+using TrueDarkMagic = MagicType<std::vector<T>, std::string>;
+
+TrueDarkMagic<bool> you;
+```
+
+
+类型别名模板
+
+
+
+#### Variadic Templates
+```c++
+// 变长参数模板
+template<typename... Ts> class Magic;
+
+class Magic<int,
+            std::vector<int>,
+            std::map<std::string,std::vector<int>>> darkMagic;
+
+
+// 变长参数应用
+template<typename... Ts>
+void magic(Ts... args) {
+    std::cout << sizeof...(args) << std::endl; // 计算参数的个数
+}
+
+// 递归模板函数
+template<typename T0>
+void printf1(T0 value) {
+    std::cout << value << std::endl;
+}
+template<typename T, typename... Ts>
+void printf1(T value, Ts... args) {
+    std::cout << value << std::endl;
+    printf1(args...);
+}
+
+
+// 变参模板展开
+template<typename T0, typename... T>
+void printf2(T0 t0, T... t) {
+    std::cout << t0 << std::endl;
+    if constexpr (sizeof...(t) > 0) printf2(t...);
+}
+
+// 折叠表达式
+template<typename... Args>
+void print(Args... args) {
+    // 通过递归展开参数包实现打印
+    (std::cout << ... << args) << std::endl;
+}
+
+// (args op ...)   左折叠
+// (... op args)   右折叠
+// args...         形参包展开
+template<typename T>
+void print(T&& t) {
+    std::cout << t << " ";
+}
+
+template<typename T, typename... Args>
+void print(T&& t, Args&&... args) {
+    std::cout << t << " ";
+    print(std::forward<Args>(args)...);  // 递归展开其余的参数
+}
+
+print(1, 2, 3, 4);  // 输出: 1 2 3 4
+```
+
+
+变长参数模板，支持折叠表达式
+
+
+变长参数包展开：
+- 递归模板函数
+- 变参模板展开
+- 初始化列表展开
+
+
+
+#### NonType Template
+```c++
+// 非类型参数模板
+template <auto value> void foo() {
+    std::cout << value << std::endl;
+    return;
+}
+
+foo<10>();  // value 被推导为 int 类型
+
+
+// 模板元编程
+template<int N>
+struct Factorial {
+    static const int value = N * Factorial<N - 1>::value;
+};
+
+template<>
+struct Factorial<0> {
+    static const int value = 1;
+};
+
+std::cout << Factorial<5>::value << std::endl;  // 输出 120
+```
+
+
+非类型模板参数
+模板元编程
+模板元编程是 C++ 中通过模板实现的编程方法，允许在编译时进行计算。模板元编程常常用于生成编译时常量或实现某些编译时决策
+
+
+
+
+
+
 #### Template Specialization
 ```c++
 template<typename T>
@@ -1610,35 +1942,7 @@ struct enable_if;
 - 如果 B 为 false，则没有 type 成员
 
 
-#### Variadic Templates
-```c++
-template<typename... Args>
-void print(Args... args) {
-    // 通过递归展开参数包实现打印
-    (std::cout << ... << args) << std::endl;
-}
 
-// (args op ...)   左折叠
-// (... op args)   有折叠
-// args...         形参包展开
-template<typename T>
-void print(T&& t) {
-    std::cout << t << " ";
-}
-
-template<typename T, typename... Args>
-void print(T&& t, Args&&... args) {
-    std::cout << t << " ";
-    print(std::forward<Args>(args)...);  // 递归展开其余的参数
-}
-
-print(1, 2, 3, 4);  // 输出: 1 2 3 4
-```
-
-
-变长模板
-
-支持折叠表达式
 
 
 
@@ -1670,24 +1974,7 @@ concept IntegralAddable = Addable<T> && std::integral<T>;
 
 
 
-#### Template Metaprogramming
-```c++
-template<int N>
-struct Factorial {
-    static const int value = N * Factorial<N - 1>::value;
-};
 
-template<>
-struct Factorial<0> {
-    static const int value = 1;
-};
-
-std::cout << Factorial<5>::value << std::endl;  // 输出 120
-```
-
-
-模板元编程
-模板元编程是 C++ 中通过模板实现的编程方法，允许在编译时进行计算。模板元编程常常用于生成编译时常量或实现某些编译时决策
 
 
 
@@ -1698,3 +1985,37 @@ std::cout << Factorial<5>::value << std::endl;  // 输出 120
 
 
 运行时类型信息
+
+
+
+## 设计模式
+```yaml
+设计模式:
+    一、创建型模式（Creational Patterns）:
+        1. 单例模式（Singleton）:
+        2. 工厂模式（Factory Method）:
+        3. 抽象工厂模式（Abstract Factory）:
+        4. 生成器模式（Builder）:
+        5. 原型模式（Prototype）:
+    二、结构型模式（Structural Patterns）:
+        6. 适配器模式（Adapter）:
+        7. 桥接模式（Bridge）:
+        8. 组合模式（Composite）:
+        9. 装饰器模式（Decorator）:
+        10. 外观模式（Facade）:
+        11. 享元模式（Flyweight）:
+        12. 代理模式（Proxy）:
+    三、行为型模式（Behavioral Patterns）:
+        13. 模板方法模式（Template Method）:
+        14. 命令模式（Command）:
+        15. 迭代器模式（Iterator）:
+        16. 观察者模式（Observer）:
+        17. 中介者模式（Mediator）:
+        18. 备忘录模式（Memento）:
+        19. 解释器模式（Interpreter）:
+        20. 策略模式（Strategy）:
+        21. 状态模式（State）:
+        22. 责任链模式（Chain of Responsibility）:
+        23. 访问者模式（Visitor）:
+```
+
