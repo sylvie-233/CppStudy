@@ -1,7 +1,7 @@
 # C++
 
 >`现代 C++ 教程：高速上手 C++ 11/14/17/20: https://changkun.de/modern-cpp/zh-cn/03-runtime/`
->`一起来学C++: P4`
+>`一起来学C++: P6`
 >
 
 
@@ -604,16 +604,19 @@ std:
         ranges: # 范围操作
             any_of():
             find():
+            for_each(): # 遍历
             sort():
+            to<>: # 类型转换
         views: # 视图操作,懒加载操作，不复制数据
+            common: # 转换为标准container-like range，有begin()、end()
             drop(): # 跳过前n个元素
             filter(): # 过滤
-            iota(): # range范围
+            iota(): # range范围生成
             join(): # 拼接嵌套 range
-            reverse():
+            reverse(): # 反转
             split(): # 按值拆分
             take(): # 取前n个元素
-            transform(): # 转换
+            transform(): # map转换
     <ratio>: # 编译期的有理数运算
         ratio:
             den:
@@ -1013,6 +1016,18 @@ Control Flow:
     for ...: # 循环遍历、增强for循环
 ```
 
+
+运算符类型：（3 + 3）
+- 赋值运算符：
+    - 复合赋值运算符：
+- 算术运算符：
+    - 增量/减量运算符
+- 位运算符：
+- 逻辑运算符：
+- 关系运算符：
+- 三元运算符：
+
+
 太空船运算符`<=>`
 支持结构化绑定：解构，可用于结构体
 
@@ -1116,8 +1131,12 @@ try {
 
 
 
+#### Ranges
+```c++
 
+```
 
+Ranges库提供流式处理：ranges + view
 
 
 
@@ -1351,6 +1370,11 @@ class Magic {
 默认函数
 
 
+
+#### Operator Function
+
+
+运算符重载
 
 #### Extends
 ```c++
