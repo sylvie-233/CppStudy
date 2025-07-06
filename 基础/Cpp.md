@@ -198,7 +198,7 @@ std:
         upper_bound(): # 找到第一个>value的位置
         unique(): # 去重,去除相邻重复（返回新末尾）
         unique_copy():
-    <any>: # 动态，任意类型
+    <any>: # 动态，任意类型（C++17），用于代替void*
         any: # 任意类型
             has_value():
             reset(): # 清空值
@@ -206,7 +206,7 @@ std:
         bad_any_cast: # any转换异常
         any_cast(): # any转具体类型，抛出bad_any_cas异常
         make_any():
-    <array>: # c固定大小数组封装
+    <array>: # c固定大小数组封装（），用于代替 T[]
         array: # 固定大小数组
             iterator: # 迭代器
             at(): # 元素索引
@@ -1991,7 +1991,7 @@ template<std::integral T>
 concept IntegralAddable = Addable<T> && std::integral<T>;
 ```
 
-最终版模板特化
+最终版模板特化(C++20)
 
 概念、泛型约束
 概念可以帮助我们在模板参数上添加约束，从而使得模板更加可读、可维护并且能够在编译时捕捉到错误
