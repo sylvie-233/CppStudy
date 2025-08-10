@@ -1,6 +1,6 @@
 # C++
 
->`现代 C++ 教程：高速上手 C++ 11/14/17/20: https://changkun.de/modern-cpp/zh-cn/03-runtime/`
+>`现代 C++ 教程：高速上手 C++ 11/14/17/20: https://changkun.de/modern-cpp/zh-cn/07-thread/`
 >`一起来学C++: P6`
 >
 
@@ -213,11 +213,11 @@ std:
             empty(): # 判空
             back(): # 最后一个元素
             begin():
-            data(): # 返回一个指向数组元素的指针（通常用于与 C 风格 API 一起使用）
+            data(): # 返回一个指向数组元素的指针（通常用于兼容 C 风格 API 一起使用）
             end():
             fill(): # 数据填充
             front(): # 第一个元素
-            size(): # 大小
+            size(): # 数组大小
     <atomic>: # 原子操作
         atomic: # 原子类
             compare_exchange_strong(): # CAS操作
@@ -440,7 +440,7 @@ std:
         function: # 函数封装器，代替函数指针
         greater: # 比较器，仿函数
         placeholders: # 函数绑定占位符
-            _1:
+            _1: # 传递的第1个参数
             _2:
             _3:
         bind(): # 函数绑定，配合placeholders占位符使用
@@ -538,6 +538,9 @@ std:
     <memory>: # 内存管理
         unique_ptr: # 独享指针
         shared_ptr: # 共享指针，引用计数
+            get(): # 获取原始指针
+            reset():
+            use_count():
         weak_ptr: # 弱引用指针，
         make_shared():
         make_unique(): # 代替原生new，支持原位构造
@@ -638,7 +641,7 @@ std:
         sregex_iterator: # 遍历所有匹配项
         smatch: # 匹配结果（string 专用）
             prefix():
-            size():
+            size(): # 
             str():
         regex_match(): # 整体匹配
         regex_replace(): # 正则替换
@@ -765,6 +768,8 @@ std:
         get(): # 0, 1, 2
         make_tuple():
         tie(): # 元组解构
+        tuple_cat(): # 元组合并
+        tuple_size(): # 元组大小
     <typeindex>:
     <typeinfo>: # type类型信息
         type_info: # type类型信息
@@ -816,6 +821,7 @@ std:
             pop_back(): # 尾部删除
             push_back(): # 尾部添加
             resize(): # 扩/缩容
+            shrink_to_fit(): # 释放额外内存
             size(): # 数组长度
     <version>:
 ```
@@ -883,14 +889,30 @@ for (int i = 0; i < arr.size(); ++i) {
 }
 ```
 
+固定大小的容器
+
 静态大小数组、c数组封装
 用于替代传统的 C 风格数组
 
 
 #### tuple
+```c++
+// make_tuple 创建元组
+auto student = std::make_tuple(3.8, 'A', "张三");
 
+// get 获取元组中的元素
+auto gpa = std::get<0>(student);
+
+// tie 元组拆包
+double gpa;
+char grade;
+std::string name;
+std::tie(gpa, grade, name) = student;
+```
 
 元组
+
+元组的遍历需使用模板特性
 
 
 #### vector
@@ -964,8 +986,12 @@ vector<int> arr(100, 0);
 
 #### unordered_set
 
+无序集合
+
 
 #### unordered_map
+
+无序映射表
 
 
 #### bitset
@@ -1178,6 +1204,12 @@ MagicFoo magicFoo = {1, 2, 3, 4, 5};
 
 #### Lambda
 ```c++
+/**
+    [捕获列表](参数列表) mutable(可选) 异常属性 -> 返回类型 {
+        // 函数体
+    }
+*/
+
 // 基础lambda声明
 auto greet = []() {
     std::cout << "Hello, Lambda!" << std::endl;
@@ -1196,8 +1228,48 @@ auto modifyX = [x]() mutable {  // 使用 mutable 允许修改捕获的副本
 ```
 
 匿名函数
-- 按值捕获所有变量：`[=]`
-- 按引用捕获所有变量：`[&]`
+- `[]`: 空捕获列表
+- `[name1, name2, ...]`: 捕获一系列变量
+- `[&]`: 引用捕获, 从函数体内的使用确定引用捕获列表
+- `[=]`: 值捕获, 从函数体内的使用确定值捕获列表
+
+Lambda变量捕获：
+- Lambda 表达式内部函数体在默认情况下是不能够使用函数体外部的变量的
+- 被捕获的变量在 Lambda 表达式被创建时拷贝， 而非调用时才拷贝
+
+Lambda(闭包对象)与函数的关系：
+- Lambda 表达式的本质是一个和函数对象类型相似的类类型（称为闭包类型）的对象（称为闭包对象）
+- 当 Lambda 表达式的捕获列表为空时，闭包对象还能够转换为函数指针值进行传递
+
+
+#### Function
+```c++
+// using定义函数类型
+using foo = void(int);
+
+// 函数对象结合Lambda
+std::function<int(int)> func = [&](int value) -> int {
+    return 10 + value;
+};
+```
+
+函数对象包装器`std::function`
+
+
+#### Function Bind
+```c++
+void foo(int a, int b, int c) {}
+
+// bind进行函数绑定、placeholder占位符
+auto bindFoo = std::bind(foo, std::placeholders::_1, 1,2);
+// 这时调用 bindFoo 时，只需要提供第一个参数即可
+bindFoo(1);
+```
+
+函数绑定
+- `std::bind`
+- `std::placeholders`
+
 
 
 #### Auto Function
@@ -1276,6 +1348,8 @@ public:
 
 支持构造函数初始化列表
 触发移动构造：`MyClass obj2 = std::move(obj1);`
+
+将亡值赋值给新对象，会触发新对象的移动构造
 
 using继承构造函数
 
@@ -1502,6 +1576,14 @@ myFunction();  // 也可以直接使用 myFunction()
 
 ### 智能指针
 
+RAII（Resource Acquisition Is Initialization，资源获取即初始化）是一种管理资源生命周期的编程惯用法
+
+RAII 的核心思想：
+- 在对象构造时获取资源，在对象析构时释放资源
+
+RAII 典型应用：
+- C++ 的智能指针
+- RAII 管理锁
 
 #### Smart Pointer
 ```c++
@@ -1523,6 +1605,33 @@ std::unique_ptr、std::shared_ptr 和 std::weak_ptr
 - std::weak_ptr：不改变对象的引用计数，通常用于解决循环引用问题，辅助管理 shared_ptr
 
 
+##### shared_ptr
+```c++
+// make_shared 创建共享智能指针
+auto pointer = std::make_shared<int>(10);
+
+// get 获取原始指针
+int *p = pointer.get();  // 这样不会增加引用计数
+```
+
+共享智能指针
+
+
+##### unique_ptr
+
+独占智能指针
+
+可使用`std::move`转移所有权
+
+
+
+##### weak_ptr
+
+
+弱引用智能指针
+解决循环引用问题
+
+
 
 
 #### RValue Reference
@@ -1533,8 +1642,22 @@ int&& x = 10;  // x 是一个右值引用，绑定到右值 10
 右值引用
 - && 主要用于实现 移动语义（Move Semantics） 和 完美转发（Perfect Forwarding）
 - 允许程序员操作右值（临时对象）并优化资源管理
+- `std::move` 这个方法将左值参数无条件的转换为右值
 
 用于需要区分左值、右值的情况
+- 左值：(lvalue, left value)顾名思义就是赋值符号左边的值
+    - 左值是表达式（不一定是赋值表达式）后依然存在的持久对象
+- 右值：(rvalue, right value)，右边的值
+    - 是指表达式结束后就不再存在的临时对象
+- 纯右值：(prvalue, pure rvalue)，纯粹的右值
+    - 纯粹的字面量、求值结果相当于字面量或匿名临时对象
+    - 字面量除了字符串字面量以外，均为纯右值。而字符串字面量是一个左值，类型为 const char 数组
+- 将亡值：(xvalue, expiring value)，是 C++11 为了引入右值引用而提出的概念
+    - 即将被销毁、却能够被移动的值
+
+右值引用的意义：
+- 要拿到一个将亡值，就需要用到右值引用：T &&，其中 T 是类型
+- 右值引用的声明让这个临时值的生命周期得以延长、只要变量还活着，那么将亡值将继续存活
 
 
 
@@ -1575,7 +1698,7 @@ MyClass b(20);
 b = std::move(a);  
 ```
 
-移动
+移动，强制转为右值引用
 
 std::move 并不会实际移动对象，而是将对象转换为右值引用，从而触发移动构造函数
 - 当一个临时对象（右值）被用于 初始化 新对象时，会调用移动构造函数
@@ -1608,6 +1731,11 @@ wrapper(20); // 传递右值
 完美转发
 将函数参数转发到另一个函数时，保持参数的值类别（左值或右值）
 完美转发通常依赖于右值引用（T&&）和 std::forward 来实现
+std::forward 来进行参数的转发，保留实参原来的参数类型，而并非函数声明的参数类型
+
+需要完美转发的原因：一个声明的右值引用其实是一个左值，在传递该引用参数时触发的是左值，而并非引用的右值
+
+
 
 ### 并发
 
