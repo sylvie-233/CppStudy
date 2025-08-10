@@ -1,7 +1,7 @@
 # C++
 
 >`现代 C++ 教程：高速上手 C++ 11/14/17/20: https://changkun.de/modern-cpp/zh-cn/00-preface/`
->`一起来学C++: P6`
+>`一起来学C++: P12`
 >
 
 
@@ -490,6 +490,7 @@ std:
         cin: # 标准输入流
             clear():
             get():
+            getline(): # 读取一行
             ignore():
             tie(): # 用于解绑cin与cout，提高输入输出性能
         cout: # 标准输出流
