@@ -1,6 +1,6 @@
 # C++
 
->`现代 C++ 教程：高速上手 C++ 11/14/17/20: https://changkun.de/modern-cpp/zh-cn/07-thread/`
+>`现代 C++ 教程：高速上手 C++ 11/14/17/20: https://changkun.de/modern-cpp/zh-cn/00-preface/`
 >`一起来学C++: P6`
 >
 
@@ -461,12 +461,13 @@ std:
         future: # 异步响应结果，co_await能直接取出future中的值
             get(): # 阻塞等待取出
             share():
+            wait(): # 阻塞任务执行完成
         future_status:
         launch: # 启动策略
             async: # 立即执行
             deferred: # get()延迟执行
-        packaged_task: # 普通函数包装成任务task，异步执行
-            get_future():
+        packaged_task: # 普通函数包装成任务task，异步执行（task是与thread对接的）
+            get_future(): # task获取futere
         promise: # 异步传参
             get_future():
             set_value():
@@ -547,10 +548,10 @@ std:
     <mutex>: # 互斥锁
         adopt_lock:
         defer_lock:
-        lock_guard: # RAII 自动加解锁
+        lock_guard: # RAII 自动加解锁（变量释放时自动释放锁）
         mutex: # 互斥锁
-            lock():
-            unlock():
+            lock(): # 加锁
+            unlock(): # 释放锁
         once_flag: # 
         recursive_mutex: # 可重复上锁，递归互斥锁
         recursive_timed_mutex:
@@ -558,7 +559,7 @@ std:
         shared_lock:
         timed_mutex: # 带超时锁
             try_lock_for():
-        unique_lock: # 可一次锁多个 mutex，避免死锁
+        unique_lock: # 可一次锁多个 mutex，避免死锁（lock_guard升级版、可手动lock、unlock）
         call_once(): # 
     <new>: # 内存分配
         bad_alloc: # 内存分配 异常
@@ -760,7 +761,7 @@ std:
             yield():
         thread: # 线程
             detach():
-            join():
+            join(): # 阻塞直到线程结束
             joinable():
     <tuple>: # 元组
         tuple:
@@ -1739,6 +1740,13 @@ std::forward 来进行参数的转发，保留实参原来的参数类型，而�
 
 ### 并发
 
+数据一致性模型：
+1. 线性一致性
+2. 顺序一致性
+3. 因果一致性
+4. 最终一致性
+
+
 
 #### Thread
 
@@ -1836,6 +1844,7 @@ promise_type 是由 C++ 协程框架自动创建的，具体来说，它是 协�
 #### Atomic
 
 原子操作
+六种内存顺序
 
 
 #### Mutex
