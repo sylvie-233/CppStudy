@@ -25,6 +25,10 @@ long long qpow(long long a, long long b, long long mod) {
 
 ### 大数运算
 
+
+
+
+
 #### 大数加法
 ```c++
 string add(string a, string b) {
@@ -1014,6 +1018,11 @@ f[i][j]记录 a[1~i]和b[1~j]的最长公共子序列
 ![LCS状态转移方程](../assets/LCS状态转移方程.png)
 
 
+#### 状态DP
+
+
+
+
 ### 背包DP
 
 
@@ -1084,6 +1093,9 @@ for (int i = 0; i < n; ++i) {
 
 问题描述：每个物品最多可以选 c[i] 次
 二进制优化原理：
+
+
+### 区间DP
 
 
 
@@ -2044,7 +2056,7 @@ ll C(int n, int k) {
 ## 九、计算几何
 
 
-## 十、概率
+## 十、概率论
 
 
 ## 十一、博弈论

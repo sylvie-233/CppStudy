@@ -507,7 +507,7 @@ std:
         distance(): # 计算两个迭代器之间的距离
         next(): # 	返回 it+n 的副本
         prev(): # 返回 it−n 的副本
-    <latch>: # 一次性的线程等待屏障
+    <latch>: # CountDownLatch 一次性的线程等待屏障
         latch:
             count_down():
             try_wait():
@@ -1722,12 +1722,13 @@ promise_type 是由 C++ 协程框架自动创建的，具体来说，它是 协�
 
 #### Barrier
 
+线程屏障
 <barrier> 是 C++20 引入的头文件，提供了一个线程屏障（barrier）机制，用于协调多个线程在某个同步点等待，直到所有线程都到达该点再继续执行
 
 
 #### Latch
 
-
+CountDownLatch计数等待
 一次性的线程屏障
 
 
