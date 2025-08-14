@@ -1,7 +1,7 @@
 # C++
 
 >`现代 C++ 教程：高速上手 C++ 11/14/17/20: https://changkun.de/modern-cpp/zh-cn/00-preface/`
->`一起来学C++: P12`
+>`一起来学C++: P23`
 >
 
 
@@ -373,7 +373,7 @@ std:
             directory_iterator: # 目录迭代器
                 path():
             filesystem_error: # 文件系统异常
-            path: # 路径操作
+            path: # 文件路径
                 append(): # 追加路径
                 clear():
                 concat():
@@ -389,18 +389,18 @@ std:
                 parent_path():
             recursive_directory_iterator: # 深度遍历目录
             copy():
-            create_directories():
-            create_directory():
+            create_directories(): # 创建多级目录
+            create_directory(): # 创建目录
             create_symlink():
             current_path(): # 当前路径
-            exists():
+            exists(): # 文件存在
             file_size():
             is_directory():
             is_regular_file():
             last_write_time():
-            remove():
+            remove(): # 删除文件
             remove_all():
-            rename():
+            rename(): # 文件重命名
     <format>: # 格式化字符串，取代printf
         format(): # 字符串格式化
             {}:
@@ -552,6 +552,7 @@ std:
         lock_guard: # RAII 自动加解锁（变量释放时自动释放锁）
         mutex: # 互斥锁
             lock(): # 加锁
+            try_lock(): # 尝试加锁
             unlock(): # 释放锁
         once_flag: # 
         recursive_mutex: # 可重复上锁，递归互斥锁
@@ -560,6 +561,7 @@ std:
         shared_lock:
         timed_mutex: # 带超时锁
             try_lock_for():
+            try_lock_until():
         unique_lock: # 可一次锁多个 mutex，避免死锁（lock_guard升级版、可手动lock、unlock）
         call_once(): # 
     <new>: # 内存分配
@@ -755,11 +757,12 @@ std:
     <system_error>:
     <thread>: # 线程库
         jthread:
-        this_thread:
-            get_id():
+        this_thread: # 当前线程
+            get_id(): # 线程id
             hardware_concurrency():
-            sleep_for():
-            yield():
+            sleep_for(): # 线程睡眠
+            sleep_until():
+            yield(): # 中断线程调度
         thread: # 线程
             detach():
             join(): # 阻塞直到线程结束
