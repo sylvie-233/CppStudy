@@ -1,7 +1,7 @@
 # C++
 
 >`现代 C++ 教程：高速上手 C++ 11/14/17/20: https://changkun.de/modern-cpp/zh-cn/00-preface/`
->`一起来学C++: P23`
+>`一起来学C++: P41`
 >
 
 
@@ -444,11 +444,12 @@ std:
             _2:
             _3:
         bind(): # 函数绑定，配合placeholders占位符使用
+        cref(): # 函数绑定，常量引用传参
         equal_to():
         greater_equal():
         hash(): # 哈希函数模板
         less():
-        less_equal():
+        less_equal(): 
         logical_and():
         logical_not():
         mem_fn(): # 成员函数引用
@@ -598,7 +599,7 @@ std:
         bernoulli_distribution: # 伯努利分布
         binomial_distribution: # 二项分布
         default_random_engine: # 默认引擎
-        minstd_rand: # 	线性同余生成器
+        minstd_rand: # 线性同余生成器
         mt19937: # Mersenne Twister引擎
         normal_distribution: # 正态分布
         poisson_distribution: # 泊松分布
@@ -606,24 +607,32 @@ std:
             (): # 直接生成随机数
         uniform_int_distribution: # 整数均匀分布
         uniform_real_distribution: # 浮点均匀分布
-    <ranges>: # 列表流式操作(ranges = views（视图） + actions（算法） + range 类型)
-        range:
+    <ranges>: # 列表流式操作(ranges = views（视图） + actions（算法） + range 类型)，支持管道运算符
+        range: # 范围对象（begin、end）
         ranges: # 范围操作
+            views:
             any_of():
             find():
             for_each(): # 遍历
-            sort():
-            to<>: # 类型转换
-        views: # 视图操作,懒加载操作，不复制数据
+            sort(): # 排序
+            to<>: # 类型转换（终结操作）
+        views: # 视图操作（中间操作）,懒加载操作，不复制数据
             common: # 转换为标准container-like range，有begin()、end()
+            single:
+            adjacent(): # 滑动窗口
             drop(): # 跳过前n个元素
+            enumerate(): # python enumerate带索引迭代
             filter(): # 过滤
             iota(): # range范围生成
+            iota_view(): # range范围生成
             join(): # 拼接嵌套 range
+            join_with(): # 列表字符串拼接
             reverse(): # 反转
+            slide(): # 滑动窗口
             split(): # 按值拆分
             take(): # 取前n个元素
             transform(): # map转换
+            zip(): # zip合并元组
     <ratio>: # 编译期的有理数运算
         ratio:
             den:
@@ -791,6 +800,7 @@ std:
         is_reference<>:
         is_same<>: # 类型相等is_same<T, U>，常配合decltype使用
             value: # 比较结果，bool
+        remove_cv<>: # 移除常量修饰符
         remove_pointer<>: # 移除指针
             type:
         remove_reference<>: # 移除引用
@@ -1167,8 +1177,9 @@ try {
 
 ```
 
-Ranges库提供流式处理：ranges + view
+Ranges库提供流式处理：ranges + views
 
+views操作也是一个range对象
 
 
 #### Attibute
@@ -2133,12 +2144,14 @@ template<std::integral T>
 concept IntegralAddable = Addable<T> && std::integral<T>;
 ```
 
+bool类型的编译器常量
+
 最终版模板特化(C++20)
 
 概念、泛型约束
 概念可以帮助我们在模板参数上添加约束，从而使得模板更加可读、可维护并且能够在编译时捕捉到错误
 
-
+常配合`std::enable_if_t<>使用`
 
 
 
