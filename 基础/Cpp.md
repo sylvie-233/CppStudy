@@ -1,7 +1,7 @@
 # C++
 
 >`现代 C++ 教程：高速上手 C++ 11/14/17/20: https://changkun.de/modern-cpp/zh-cn/00-preface/`
->`一起来学C++: P41`
+>``
 >
 
 
@@ -224,11 +224,15 @@ std:
             exchange():
             fetch_add():
             fetch_sub():
-            load():
-            store():
-        atomic_flag:
-            clear():
-            test_and_set():
+            load(): # 获取值
+            store(): # 设置值
+        atomic_flag: # 原子标志
+            clear(): # 清除标志
+            notify_one():
+            notify_all():
+            test():
+            test_and_set(): # 自旋设置标志
+            wait():
         atomic_ref(): # 原子引用
     <barrier>: # 线程屏障,同步机制
         barrier:
@@ -360,9 +364,10 @@ std:
         terminate(): # 调用中断异常处理
         unexpected(): # 
     <execution>: # 并行执行策略，常配合<alogorithm>使用
-        par: # 并行
-        seq: # 串行
-        par_unseq: # 并行无序
+        execution:
+            par: # 并行
+            seq: # 串行
+            par_unseq: # 并行无序
     <filesystem>: # 文件系统
         filesystem: # 文件系统
             directory_entry: # 目录条目，遍历用
@@ -470,7 +475,8 @@ std:
         packaged_task: # 普通函数包装成任务task，异步执行（task是与thread对接的）
             get_future(): # task获取futere
         promise: # 异步传参
-            get_future():
+            get_future(): # 获取future，用来获取结果
+            set_exception():
             set_value():
         shared_future: # 多线程共享future，可get()多次
         async(): # 执行异步函数，返回future，类似packaged_task，可设置launch启动模式
@@ -508,7 +514,7 @@ std:
         advance(): # 让迭代器前进 n 步
         back_inserter(): # 插入迭代器
         distance(): # 计算两个迭代器之间的距离
-        next(): # 	返回 it+n 的副本
+        next(): # 返回 it+n 的副本
         prev(): # 返回 it−n 的副本
     <latch>: # CountDownLatch 一次性的线程等待屏障
         latch:
@@ -558,8 +564,8 @@ std:
         once_flag: # 
         recursive_mutex: # 可重复上锁，递归互斥锁
         recursive_timed_mutex:
-        scoped_lock:
-        shared_lock:
+        scoped_lock: # 自动管理多锁的加锁顺序，避免死锁
+        shared_lock: # 共享锁
         timed_mutex: # 带超时锁
             try_lock_for():
             try_lock_until():
@@ -775,7 +781,7 @@ std:
         thread: # 线程
             detach():
             join(): # 阻塞直到线程结束
-            joinable():
+            joinable(): # 是否可join
     <tuple>: # 元组
         tuple:
         apply():
@@ -1029,7 +1035,7 @@ Control Flow:
     auto: # 自动类型推断，常用于lambda、函数指针
     const: # 常量
     concept: # 自定义概念，模板参数约束
-        requires():
+        requires(): # 类型约束表达式
     constexpr: # 常量表达式，编译时就计算某些常量的值，可定义常量表达式函数，constexpr 修饰的函数支持递归
     constinit:
     constval:
@@ -1819,6 +1825,37 @@ std::cout << "Returned value: " << task_instance.get() << "\n";
 ```
 
 
+协程关键字：
+- co_await
+- co_yield
+- co_return
+
+自定义协程对象：协程中间结果封装
+- struct promise_type: （内部触发使用）自定义promise结构体，包含多个个生命周期钩子
+    - get_return_object()
+    - initial_suspend():
+    - yield_value():
+    - return_value():
+    - return_void():
+    - unhandled_exception():
+    - final_suspend():
+- coroutine_handle<promise_type>: （外部使用）协程控制函数
+    - from_promise(): 初始化协程处理函数
+    - resume
+
+自定义可等待对象：协程具体业务封装
+- await_ready()
+- await_suspend():
+- await_resume():
+
+
+协程对象关系：
+- Coroutine Handle：协程返回对象
+- Coroutine Frame：协程函数
+- Promise
+- Awaitable
+
+
 协程
 task = coroutine_handle + promise_type 
 - get_return_object()：在协程开始时调用一次，返回协程的返回对象，通常是封装协程句柄的类型（如 task）。
@@ -1826,7 +1863,6 @@ task = coroutine_handle + promise_type
 - final_suspend()：协程结束时调用，控制协程是否在结束时挂起。
 - return_value()：当协程通过 co_return 返回一个值时调用，用来存储返回值。
 - unhandled_exception()：当协程抛出未捕获的异常时调用，用于处理异常。
-
 
 task仅仅是用于协程状态处理，复杂耗时操作应该定义在协程函数中
 coroutine_handle是task处理协程状态的核心
@@ -1841,7 +1877,6 @@ promise_type 是由 C++ 协程框架自动创建的，具体来说，它是 协�
 6. 协程完成：当协程完成时，final_suspend() 会被调用，协程终止，销毁协程句柄和 promise_type 对象。
 
 
-
 协程执行顺序：
 1. 调用一个协程函数（co_await、co_return）,协程框架会根据协程的定义自动创建一个 promise_type
 2. get_return_object() 调用，创建并返回一个 task 对象，task 的构造方法 `task(std::coroutine_handle<my_promise_type> h)` 会接收协程句柄 h，并初始化 task 对象
@@ -1850,8 +1885,25 @@ promise_type 是由 C++ 协程框架自动创建的，具体来说，它是 协�
 
 
 
+
+##### Promise
+
 ##### Future
 
+内部含有共享状态
+- `promise::set_value`设置值
+- `future::get`获取值
+
+##### Async
+
+异步函数
+返回future
+
+
+##### Packaged Task
+
+手动Async异步函数
+`packaged_task`
 
 
 
@@ -1859,17 +1911,41 @@ promise_type 是由 C++ 协程框架自动创建的，具体来说，它是 协�
 #### Atomic
 
 原子操作
-六种内存顺序
+
+
+##### Atomic Flag
+
+原子标志
+可实现自旋锁
+
+
+##### Memory Order
+
+内存顺序
+- memery_order_acquire:
+- memery_order_release:
+- memery_order_acq_rel:
+
+
 
 
 #### Mutex
 
 锁
 
+##### Recursive Mutex
+
+可重入锁
+
 
 ##### Shared Mutex
 
-读写锁
+共享锁读写锁
+
+
+##### Timed Mutex
+
+带超时锁
 
 
 #### Barrier
@@ -1885,6 +1961,10 @@ CountDownLatch计数等待
 
 
 #### Condition Variable
+
+通知、等待依赖Mutex机制
+- 通知方：加锁、通知
+- 接收方：加锁、等待
 
 条件变量
 用于线程间同步的一部分，提供了线程等待、通知机制，通常用于实现线程间的协调和通信
