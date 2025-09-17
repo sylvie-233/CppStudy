@@ -160,7 +160,7 @@ opengl:
     glUniform1i():
     glUniformMatrix4fv(): # 设置uniform变量值
     glUseProgram(): # 使用着色器程序program
-    glVertexAttribPointer(): # 配置VAO属性，告诉 OpenGL 顶点属性的格式，(	GLuint index,GLint size,GLenum type,GLboolean normalized,GLsizei stride,const void * pointer)：index该顶点第几个属性、size该属性包含几个数字、type每个数字的类型、normalized归一化、stride每个顶点所有属性总长、pointer该属性在该顶点数据中的偏移量
+    glVertexAttribPointer(): # 配置VAO属性，告诉 OpenGL 顶点属性的格式，(GLuint index,GLint size,GLenum type,GLboolean normalized,GLsizei stride,const void * pointer)：index该顶点第几个属性、size该属性包含几个数字、type每个数字的类型、normalized归一化、stride每个顶点所有属性总长、pointer该属性在该顶点数据中的偏移量
     glViewport(): # 设置渲染视口区域
 ```
 

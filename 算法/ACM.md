@@ -1,4 +1,4 @@
-# ACM算法
+# ACM (1 + 2 + 1 + 2)
 
 `E06 线性DP 最长公共子串`
 
@@ -581,42 +581,6 @@ int main() {
 
 
 
-### ST表
-```c++
-// 计算1~n的log2值
-for (int i = 2; i <= n; ++i)
-    Log2[i] = Log2[i / 2] + 1;
-
-// f[a][b]，a存储位置索引(1~n)，b存储2进制长度，f[a][b]存储a~a+2^b-1范围的最值
-int f[MAXN][21]; // 第二维的大小根据数据范围决定，不小于log(MAXN)
-for (int i = 1; i <= n; ++i)
-    f[i][0] = read(); // 读入数据
-for (int i = 1; i <= 20; ++i)
-    for (int j = 1; j + (1 << i) - 1 <= n; ++j)
-        f[j][i] = max(f[j][i - 1], f[j + (1 << (i - 1))][i - 1]);
-
-// 初始化、计算
-for (int i = 0; i < n; ++i) {
-    int l = read(), r = read();
-    // 区间长度所对应的log2值(不超过长度)
-    int s = Log2[r - l + 1];
-    // 查询、左右边界2进制长度查询
-    printf("%d\n", max(f[l][s], f[r - (1 << s) + 1][s]));
-}
-```
-
-ST 表（Sparse Table，稀疏表）是用于解决 可重复贡献问题 的数据结构
-![ST表](../assets/st表.png)
-![ST表存储格式](../assets/ST表存储格式.png)   
-
-目标：
-- 区间最值
-
-
-
-
-
-预处理，倍增
 
 
 
@@ -718,6 +682,45 @@ for (int i = 1; i <= n; i++) {
 2.判断根节点 if（p[x]==x）;
 3.集合合并，直接让其中一个变成儿子（子节点）,px是x的编号，py是y的编号，插入p[x]=y;
 4.求x的集合编号，while(p[x]!=x)x=p[x],因为他的循环次数取决于树的高度，时间复杂度会很高，所以将其优化为：把所有子节点都指向根节点：（路径压缩）；
+
+
+### ST表
+```c++
+// 计算1~n的log2值
+for (int i = 2; i <= n; ++i)
+    Log2[i] = Log2[i / 2] + 1;
+
+// f[a][b]，a存储位置索引(1~n)，b存储2进制长度，f[a][b]存储a~a+2^b-1范围的最值
+int f[MAXN][21]; // 第二维的大小根据数据范围决定，不小于log(MAXN)
+for (int i = 1; i <= n; ++i)
+    f[i][0] = read(); // 读入数据
+for (int i = 1; i <= 20; ++i)
+    for (int j = 1; j + (1 << i) - 1 <= n; ++j)
+        f[j][i] = max(f[j][i - 1], f[j + (1 << (i - 1))][i - 1]);
+
+// 初始化、计算
+for (int i = 0; i < n; ++i) {
+    int l = read(), r = read();
+    // 区间长度所对应的log2值(不超过长度)
+    int s = Log2[r - l + 1];
+    // 查询、左右边界2进制长度查询
+    printf("%d\n", max(f[l][s], f[r - (1 << s) + 1][s]));
+}
+```
+
+ST 表（Sparse Table，稀疏表）是用于解决 可重复贡献问题 的数据结构
+![ST表](../assets/st表.png)
+![ST表存储格式](../assets/ST表存储格式.png)   
+
+目标：
+- 区间最值
+
+
+
+
+
+预处理，倍增
+
 
 
 ### 树状数组
@@ -1213,7 +1216,6 @@ cout << dp[1] << endl;
 
 ## 五、图论
 
-### 图
 
 割点：在一个 无向图 中，如果删除某个点（以及它的所有边），图的连通分量数增加，那么这个点就是割点
 桥（割边）：在一个 无向图 中，删除某条边后，图的连通分量数增加，那么这条边就是桥
@@ -1224,10 +1226,10 @@ cout << dp[1] << endl;
 
 
 
-#### 图的存储
+### 图的存储
 
 
-##### 邻接矩阵
+#### 邻接矩阵
 ```c++
 int w[N][N];
 
@@ -1236,7 +1238,7 @@ w[a][b] = c;
 ```
 
 
-##### 边集数组
+#### 边集数组
 ```c++
 struct edge {int u, v, w;} e[M];
 
@@ -1244,7 +1246,7 @@ struct edge {int u, v, w;} e[M];
 e[i] = {a, b, c};
 ```
 
-##### 邻接表
+#### 邻接表
 ```c++
 struct edge {v, w};
 vector<edge> e[N];
@@ -1254,7 +1256,7 @@ e[a].push_back({b, c});
 ```
 
 
-##### 链式邻接表
+#### 链式邻接表
 ```c++
 struct edge {u, v, w};
 // 边集
@@ -1268,7 +1270,7 @@ h[a].push_back(e.size() - 1);
 ```
 
 
-##### 链式前向星
+#### 链式前向星
 ```c++
 // 边集，next记录下一条边的索引
 struct edge {u, v, next} e[M];
@@ -1281,113 +1283,6 @@ h[a] = idx++;
 ```
 
 
-### 树
-
-#### 二叉树遍历
-
-二叉树先序遍历：`中 -> 左 -> 右`
-二叉树中序遍历：`左 -> 中 -> 右`，一个节点在访问时它的左子树一定访问完了
-二叉树后序遍历：`左 -> 右 -> 中`，一个节点在访问时它的左右子树一定都访问完了
-
-![二叉树遍历](../assets/二叉树遍历.png)
-
-
-#### 树的直径
-
-树中最长路径
-DFS两遍
-- 任意一点 DFS 找最远点 A
-- 以 A 为起点 DFS 找最远点 B
-- A-B 的距离即为直径
-```c++
-void dfs(int u, int fa, int dist) {
-    if (dist > max_dist) {
-        max_dist = dist;
-        node = u;
-    }
-    for (int v : G[u]) {
-        if (v != fa) dfs(v, u, dist + 1);
-    }
-}
-```
-
-
-#### 树的重心
-
-在一棵 无根树 中，重心（centroid）是这样的一个点：
-- 删除这个点后，整棵树会被分成若干棵子树；
-- 在这些子树中，最大的子树的节点数最少；
-换句话说，这个点使得删除后“最大块”尽可能小。
-```c++
-int n;
-vector<int> G[N];
-bool vis[N];
-// 用 size[u] 表示以 u 为根的子树大小；
-int size[N];
-// 用 maxp[u] 表示删掉 u 之后，最大的子树节点数
-int maxp[N];
-int centroid;
-int min_part = INF;
-
-// 从任意一点开始 DFS（例如节点 1）；
-void dfs(int u, int parent) {
-    size[u] = 1;
-    maxp[u] = 0;
-
-    for (int v : G[u]) {
-        if (v == parent || vis[v]) continue;
-
-        dfs(v, u);
-        size[u] += size[v];
-        maxp[u] = max(maxp[u], size[v]);
-    }
-
-    maxp[u] = max(maxp[u], n - size[u]);  // 分割后其余部分
-    // 希望最大的子树尽量小，maxp[u]考虑到了两边大小
-    if (maxp[u] < min_part) {
-        min_part = maxp[u];
-        centroid = u;
-    }
-}
-```
-
-#### LCA 树的最近公共祖先
-
-倍增法（O(n log n) 预处理，O(log n) 查询）
-RMQ + 欧拉序（O(1) 查询）
-Tarjan 离线并查集（离线多次 LCA 查询）
-
-```c++
-int fa[N][LOG]; // fa[u][k] = u 的第 2^k 级祖先
-int depth[N];
-
-void dfs(int u, int father) {
-    fa[u][0] = father;
-    depth[u] = depth[father] + 1;
-    for (int k = 1; (1 << k) <= depth[u]; ++k) {
-        fa[u][k] = fa[fa[u][k - 1]][k - 1];
-    }
-    for (int v : G[u]) {
-        if (v != father) dfs(v, u);
-    }
-}
-
-int lca(int u, int v) {
-    // 保证后面计算深度：u>=v
-    if (depth[u] < depth[v]) swap(u, v);
-    // 向上提升u
-    for (int k = LOG - 1; k >= 0; --k)
-        if (depth[fa[u][k]] >= depth[v])
-            u = fa[u][k];
-    if (u == v) return u;
-    for (int k = LOG - 1; k >= 0; --k)
-        if (fa[u][k] != fa[v][k]) {
-            u = fa[u][k];
-            v = fa[v][k];
-        }
-    return fa[u][0];
-}
-```
 
 
 
@@ -1718,6 +1613,175 @@ int prim(int n, vector<vector<int>>& graph) {
 Prim 算法是从某个节点开始，逐渐将图中的其他节点通过最小权重的边连接到生成树中，直到所有节点都被连接
 
 
+### Tarjan
+
+Tarjan 算法的目标是：把图中所有的强连通分量找出来
+找有向图的环
+Tarjan 算法基于 DFS 遍历，并通过时间戳、low 值、栈，来判断哪些点属于同一个 SCC
+
+在有向图中，如果一组点之间两两可达（也就是每个点都能走到其他所有点），那么这一组点就构成一个 强连通分量
+
+```c++
+const int N = 1e5 + 10;
+vector<int> graph[N];
+// dfn[u]：时间戳：节点 u 是第几个被访问的
+// low[u]：能回溯到的最小 dfn
+// 找到 low[u] == dfn[u]，说明 u 是某个强连通分量的根
+int dfn[N], low[N], timestamp;
+// inStack[u]：标记 u 是否在栈中
+bool inStack[N];
+// stack：当前递归栈中的点
+stack<int> stk;
+int scc_id[N], scc_cnt;
+vector<int> scc[N]; // scc[i] 存储第 i 个强连通分量里的节点
+
+void tarjan(int u) {
+    dfn[u] = low[u] = ++timestamp;
+    stk.push(u);
+    inStack[u] = true;
+
+    for (int v : graph[u]) {
+        if (!dfn[v]) {
+            tarjan(v);
+            // 回溯更新
+            low[u] = min(low[u], low[v]);
+        } else if (inStack[v]) {
+            // 环,更新能直接到的最小编号
+            low[u] = min(low[u], dfn[v]);
+        }
+    }
+
+    // 回溯到根节点,弹栈
+    if (dfn[u] == low[u]) {
+        ++scc_cnt;
+        int v;
+        do {
+            v = stk.top(); stk.pop();
+            inStack[v] = false;
+            scc_id[v] = scc_cnt;
+            scc[scc_cnt].push_back(v);
+        } while (v != u);
+    }
+}
+
+void find_scc(int n) {
+    timestamp = scc_cnt = 0;
+    for (int i = 1; i <= n; i++) {
+        if (!dfn[i]) tarjan(i);
+    }
+}
+```
+
+
+### 树的性质
+
+#### 二叉树遍历
+
+二叉树先序遍历：`中 -> 左 -> 右`
+二叉树中序遍历：`左 -> 中 -> 右`，一个节点在访问时它的左子树一定访问完了
+二叉树后序遍历：`左 -> 右 -> 中`，一个节点在访问时它的左右子树一定都访问完了
+
+![二叉树遍历](../assets/二叉树遍历.png)
+
+
+#### 树的直径
+
+树中最长路径
+DFS两遍
+- 任意一点 DFS 找最远点 A
+- 以 A 为起点 DFS 找最远点 B
+- A-B 的距离即为直径
+```c++
+void dfs(int u, int fa, int dist) {
+    if (dist > max_dist) {
+        max_dist = dist;
+        node = u;
+    }
+    for (int v : G[u]) {
+        if (v != fa) dfs(v, u, dist + 1);
+    }
+}
+```
+
+
+#### 树的重心
+
+在一棵 无根树 中，重心（centroid）是这样的一个点：
+- 删除这个点后，整棵树会被分成若干棵子树；
+- 在这些子树中，最大的子树的节点数最少；
+换句话说，这个点使得删除后“最大块”尽可能小。
+```c++
+int n;
+vector<int> G[N];
+bool vis[N];
+// 用 size[u] 表示以 u 为根的子树大小；
+int size[N];
+// 用 maxp[u] 表示删掉 u 之后，最大的子树节点数
+int maxp[N];
+int centroid;
+int min_part = INF;
+
+// 从任意一点开始 DFS（例如节点 1）；
+void dfs(int u, int parent) {
+    size[u] = 1;
+    maxp[u] = 0;
+
+    for (int v : G[u]) {
+        if (v == parent || vis[v]) continue;
+
+        dfs(v, u);
+        size[u] += size[v];
+        maxp[u] = max(maxp[u], size[v]);
+    }
+
+    maxp[u] = max(maxp[u], n - size[u]);  // 分割后其余部分
+    // 希望最大的子树尽量小，maxp[u]考虑到了两边大小
+    if (maxp[u] < min_part) {
+        min_part = maxp[u];
+        centroid = u;
+    }
+}
+```
+
+### LCA
+
+倍增法（O(n log n) 预处理，O(log n) 查询）
+RMQ + 欧拉序（O(1) 查询）
+Tarjan 离线并查集（离线多次 LCA 查询）
+
+```c++
+int fa[N][LOG]; // fa[u][k] = u 的第 2^k 级祖先
+int depth[N];
+
+void dfs(int u, int father) {
+    fa[u][0] = father;
+    depth[u] = depth[father] + 1;
+    for (int k = 1; (1 << k) <= depth[u]; ++k) {
+        fa[u][k] = fa[fa[u][k - 1]][k - 1];
+    }
+    for (int v : G[u]) {
+        if (v != father) dfs(v, u);
+    }
+}
+
+int lca(int u, int v) {
+    // 保证后面计算深度：u>=v
+    if (depth[u] < depth[v]) swap(u, v);
+    // 向上提升u
+    for (int k = LOG - 1; k >= 0; --k)
+        if (depth[fa[u][k]] >= depth[v])
+            u = fa[u][k];
+    if (u == v) return u;
+    for (int k = LOG - 1; k >= 0; --k)
+        if (fa[u][k] != fa[v][k]) {
+            u = fa[u][k];
+            v = fa[v][k];
+        }
+    return fa[u][0];
+}
+```
+
+
 ### 树链剖分
 
 树链剖分（Heavy-Light Decomposition，简称 HLD）是树上路径查询/修改类题的王炸算法，尤其在支持路径上快速查询、修改、赋值的时候非常高效
@@ -1840,71 +1904,15 @@ seg.build(1, 1, n);
 ![树链剖分](../assets/hld树链剖分.png)
 
 
-### Tarjan 有向图强连通分量
-
-Tarjan 算法的目标是：把图中所有的强连通分量找出来
-找有向图的环
-Tarjan 算法基于 DFS 遍历，并通过时间戳、low 值、栈，来判断哪些点属于同一个 SCC
-
-在有向图中，如果一组点之间两两可达（也就是每个点都能走到其他所有点），那么这一组点就构成一个 强连通分量
-
-```c++
-const int N = 1e5 + 10;
-vector<int> graph[N];
-// dfn[u]：时间戳：节点 u 是第几个被访问的
-// low[u]：能回溯到的最小 dfn
-// 找到 low[u] == dfn[u]，说明 u 是某个强连通分量的根
-int dfn[N], low[N], timestamp;
-// inStack[u]：标记 u 是否在栈中
-bool inStack[N];
-// stack：当前递归栈中的点
-stack<int> stk;
-int scc_id[N], scc_cnt;
-vector<int> scc[N]; // scc[i] 存储第 i 个强连通分量里的节点
-
-void tarjan(int u) {
-    dfn[u] = low[u] = ++timestamp;
-    stk.push(u);
-    inStack[u] = true;
-
-    for (int v : graph[u]) {
-        if (!dfn[v]) {
-            tarjan(v);
-            // 回溯更新
-            low[u] = min(low[u], low[v]);
-        } else if (inStack[v]) {
-            // 环,更新能直接到的最小编号
-            low[u] = min(low[u], dfn[v]);
-        }
-    }
-
-    // 回溯到根节点,弹栈
-    if (dfn[u] == low[u]) {
-        ++scc_cnt;
-        int v;
-        do {
-            v = stk.top(); stk.pop();
-            inStack[v] = false;
-            scc_id[v] = scc_cnt;
-            scc[scc_cnt].push_back(v);
-        } while (v != u);
-    }
-}
-
-void find_scc(int n) {
-    timestamp = scc_cnt = 0;
-    for (int i = 1; i <= n; i++) {
-        if (!dfn[i]) tarjan(i);
-    }
-}
-```
 
 
+## 六、数学
 
-## 六、数论
+
+### 数论
 
 
-### GCD 最大公约数
+#### GCD 最大公约数
 ```c++
 int gcd(int a, int b) {
     return b == 0 ? a : gcd(b, a % b);
@@ -1914,7 +1922,7 @@ int gcd(int a, int b) {
 欧几里得算法
 
 
-#### GCD EX 扩展欧几里得
+##### GCD EX 扩展欧几里得
 ```c++
 int exgcd(int a, int b, int &x, int &y) {
     // b = 0, gcd(a, b) = a
@@ -1932,9 +1940,9 @@ int exgcd(int a, int b, int &x, int &y) {
 ![扩展欧几里得算法](../assets/扩展欧几里得算法.png)
 
 
-### 素数筛
+#### 素数筛
 
-#### 埃氏筛法
+##### 埃氏筛法
 ```c++
 const int N = 1e6 + 10;
 bool is_prime[N];
@@ -1960,7 +1968,7 @@ void eratosthenes(int n) {
 
 
 
-#### 欧拉筛法
+##### 欧拉筛法
 ```c++
 const int N = 1e6 + 10;
 int primes[N], cnt = 0;
@@ -1986,31 +1994,28 @@ void euler_sieve(int n) {
 
 
 
-### 模逆元
+#### 模逆元
 
 
 
-#### 费马小定理
+##### 费马小定理
 
 
 ![费马小定理求逆元](../assets/费马小定理求逆元.png)
 
 
-#### 扩展欧几里得法
+##### 扩展欧几里得法
 
 
-### 欧拉函数
+#### 欧拉函数
 
 
-### 中国剩余定理
+#### 中国剩余定理
 
 
-## 七、线性代数
+### 组合数学
 
-
-## 八、组合数学
-
-### 大组合数求模
+#### 大组合数求模
 ```c++
 using ll = long long;
 const int N = 2e5 + 10;
@@ -2053,15 +2058,21 @@ ll C(int n, int k) {
 
 
 
-## 九、计算几何
 
 
-## 十、概率论
+### 线性代数
 
 
-## 十一、博弈论
 
 
+
+### 概率论
+
+
+### 博弈论
+
+
+### 计算几何
 
 
 

@@ -9,8 +9,12 @@ library库文件管理、include头文件管理
 
 
 ### 安装目录
+```yaml
+cmake:
+    
+```
 
-#### 生成目录
+#### 项目目录
 ```yaml
 /build:
     /CmakeFiles:
@@ -322,13 +326,9 @@ cpack:
 
 ## 核心内容
 
-### CMake Generator Expression
+### CMake File
 
-生成器表达式变量，用于简化条件判断
-生成阶段执行
-
-
-### Config.cmake
+#### Config.cmake
 ```yaml
 /MyLibrary:
     /CMake:
@@ -347,61 +347,46 @@ cpack:
 
 `XXX_LIBRARIES`、`XXX_INCLUDE_DIRS`、`XXX_FOUND`
 
-### Install.cmake
+#### Install.cmake
 
 控制安装路径：`CMAKE_INSTALL_PREFIX`
 
+### CMake Module Config
+```bash
+# MyLibraryConfig.cmake
+set(MyLibrary_INCLUDE_DIRS "C:/libs/MyLibrary/include")
+set(MyLibrary_LIBRARIES "C:/libs/MyLibrary/lib/MyLibrary.lib")
 
-### #cmakedefine
-
-`#define`扩展，对于0值、OFF值、undefined值不会生成定义
-
-### configure_file()
-
-
-### find_package()
-
-
-支持Module、Config两种模式
-- FindXxx.cmake
-- XxxConfig.cmake
-
-
-模块查找成功自动设置变量：
-- PackageName_FOUND：找到了就是True,没找到就是未设定
-- PackageName_INCLUDE_DIR：即头文件目录
-- PackageName_LIBRARY：即库文件
-
-模块搜索路径：
-- PackageName_ROOT
-- PackageName_DIR
-- CMAKE_PREFIX_PATH: cmake模块搜索路径前缀
+# 设置其他可能的变量
+set(MyLibrary_FOUND TRUE)
 
 
 
-Config.cmake、ConfigVersion.cmake
-XXX_DIR模块路径
+# 使用模块MyLibrary
+# 设置查找路径
+set(CMAKE_PREFIX_PATH "C:/libs/MyLibrary/lib/cmake")
 
+# 查找 MyLibrary
+find_package(MyLibrary REQUIRED)
 
+# 使用找到的库
+if(MyLibrary_FOUND)
+  include_directories(${MyLibrary_INCLUDE_DIRS})
+  target_link_libraries(MyTarget ${MyLibrary_LIBRARIES})
+endif()
+```
 
-查找和配置外部依赖库流程：
-- 用户定义的路径：CMAKE_PREFIX_PATH
-- CMake内建的模块：CMAKE_MODULE_PATH、例如FindBoost.cmake，FindSDL.cmake等
-- 配置文件：一些库提供了CMake配置文件（<LibraryName>Config.cmake）
-- 系统默认路径
+原生cmake管理库
+`<PackageName>Config.cmake` 模块适用于库已经使用 CMake 构建，并且提供了CMake配置文件的情况。CMake 配置文件通常位于安装路径的 lib/cmake/ 目录下，并包含库的相关设置。用户通过 find_package() 来查找并使用这些设置
+- XXX_INCLUDE_DIR：指定头文件目录
+- XXX_LIBRARY_DIR：指定库文件目录
+- XXX_FOUND：指定该模块配置成功
 
-`CMAKE_PREFIX_PATH`: 指定查找包路径
-`Find<PackageName>.cmake`
-`<PackageName>Config.cmake`
+使用configure_package_config_file()和write_basic_package_version_file()内置API直接生成Config.cmake和ConfigVersion.cmake文件，不需要手动创建
 
-基于`XXX_DIR`去寻找指定的XXX模块
+生成Config.cmake需要模板文件
 
-
-CMake 模块包括两种常见形式：
-- Find模块 `Find<PackageName>.cmake`，适用于不使用 CMake 构建的第三方库。
-- Config模块 `<PackageName>Config.cmake`，适用于使用 CMake 构建并支持 CMake 配置的库。
-
-#### Find Module
+#### CMake Module Find
 ```bash
 # FindMyLibrary.cmake
 # 1. 指定默认的查找路径
@@ -456,44 +441,69 @@ endif()
 - XXX_FOUND：指定该模块配置成功
 
 
-#### Config Module
-```bash
-# MyLibraryConfig.cmake
-set(MyLibrary_INCLUDE_DIRS "C:/libs/MyLibrary/include")
-set(MyLibrary_LIBRARIES "C:/libs/MyLibrary/lib/MyLibrary.lib")
 
-# 设置其他可能的变量
-set(MyLibrary_FOUND TRUE)
+
+### CMake Generator Expression
+
+生成器表达式变量，用于简化条件判断
+生成阶段执行
 
 
 
-# 使用模块MyLibrary
-# 设置查找路径
-set(CMAKE_PREFIX_PATH "C:/libs/MyLibrary/lib/cmake")
+### CMake Function
 
-# 查找 MyLibrary
-find_package(MyLibrary REQUIRED)
+#### #cmakedefine
 
-# 使用找到的库
-if(MyLibrary_FOUND)
-  include_directories(${MyLibrary_INCLUDE_DIRS})
-  target_link_libraries(MyTarget ${MyLibrary_LIBRARIES})
-endif()
-```
+`#define`扩展，对于0值、OFF值、undefined值不会生成定义
 
-原生cmake管理库
-`<PackageName>Config.cmake` 模块适用于库已经使用 CMake 构建，并且提供了CMake配置文件的情况。CMake 配置文件通常位于安装路径的 lib/cmake/ 目录下，并包含库的相关设置。用户通过 find_package() 来查找并使用这些设置
-- XXX_INCLUDE_DIR：指定头文件目录
-- XXX_LIBRARY_DIR：指定库文件目录
-- XXX_FOUND：指定该模块配置成功
-
-使用configure_package_config_file()和write_basic_package_version_file()内置API直接生成Config.cmake和ConfigVersion.cmake文件，不需要手动创建
-
-生成Config.cmake需要模板文件
+#### configure_file()
 
 
+#### find_package()
 
-### function()
+
+支持Module、Config两种模式
+- FindXxx.cmake
+- XxxConfig.cmake
+
+
+模块查找成功自动设置变量：
+- PackageName_FOUND：找到了就是True,没找到就是未设定
+- PackageName_INCLUDE_DIR：即头文件目录
+- PackageName_LIBRARY：即库文件
+
+模块搜索路径：
+- PackageName_ROOT
+- PackageName_DIR
+- CMAKE_PREFIX_PATH: cmake模块搜索路径前缀
+
+
+
+Config.cmake、ConfigVersion.cmake
+XXX_DIR模块路径
+
+
+
+查找和配置外部依赖库流程：
+- 用户定义的路径：CMAKE_PREFIX_PATH
+- CMake内建的模块：CMAKE_MODULE_PATH、例如FindBoost.cmake，FindSDL.cmake等
+- 配置文件：一些库提供了CMake配置文件（<LibraryName>Config.cmake）
+- 系统默认路径
+
+`CMAKE_PREFIX_PATH`: 指定查找包路径
+`Find<PackageName>.cmake`
+`<PackageName>Config.cmake`
+
+基于`XXX_DIR`去寻找指定的XXX模块
+
+
+CMake 模块包括两种常见形式：
+- Find模块 `Find<PackageName>.cmake`，适用于不使用 CMake 构建的第三方库。
+- Config模块 `<PackageName>Config.cmake`，适用于使用 CMake 构建并支持 CMake 配置的库。
+
+
+
+#### function()
 
 函数创建
 
