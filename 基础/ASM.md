@@ -41,23 +41,10 @@ link:
 链接器
 
 
-### DLL
-
-
-windows默认加载DLL：
-- 核心功能（如 ntdll.dll, kernel32.dll）
-- GUI相关（如 user32.dll, gdi32.dll）
-- 网络和安全（如 ws2_32.dll, secur32.dll）
-- 多媒体（如 winmm.dll, dwmapi.dll）
-- C运行库（如 msvcrt.dll, ucrtbase.dll）
-- 系统Shell和Explorer相关（如 shell32.dll, shlwapi.dll）
-
-
-字符串以`0`结尾
 
 ## 核心内容
 ```yaml
-寄存器:
+Register:
     EAX:
     EBX:
     ECX:
@@ -71,7 +58,7 @@ windows默认加载DLL：
     ST0: # 浮点栈（0-7）
     XMM0: # 浮点寄存器（0-7）
 
-指令:
+Command:
     add: # 加法
     call: # 函数调用
     cmp: # sub
@@ -134,3 +121,20 @@ ESP+4：函数的第一个参数
 
 栈上最上面的两个东西：函数返回地址、旧ebp
 函数调用过程中：ebp指向旧ebp，ebp+4指向返回地址，ebp+8指向第一个参数
+
+
+
+
+### DLL
+
+
+windows默认加载DLL：
+- 核心功能（如 ntdll.dll, kernel32.dll）
+- GUI相关（如 user32.dll, gdi32.dll）
+- 网络和安全（如 ws2_32.dll, secur32.dll）
+- 多媒体（如 winmm.dll, dwmapi.dll）
+- C运行库（如 msvcrt.dll, ucrtbase.dll）
+- 系统Shell和Explorer相关（如 shell32.dll, shlwapi.dll）
+
+
+字符串以`0`结尾

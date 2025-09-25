@@ -2,19 +2,20 @@
 
 ## 基础介绍
 
+核心功能：
+1. include头文件管理
+2. library库文件管理
+3. 生成库
+4. 生成可执行文件
 
-library库文件管理、include头文件管理
-生成库、生成可执行文件
-配置阶段、生成阶段
+
+一个CMake模块的核心文件：
+- `<PackageName>.cmake`:
+- `<PackageName>Version.cmake`:
+- `<PackageName>Targets.cmake`:
 
 
-### 安装目录
-```yaml
-cmake:
-    
-```
-
-#### 项目目录
+### 项目结构
 ```yaml
 /build:
     /CmakeFiles:
@@ -29,6 +30,13 @@ cmake:
     XERO_CHECK.vcxproj.filters:
     XERO_CHECK.vcxproj.filters:
 ```
+
+#### 安装目录
+```yaml
+cmake:
+    
+```
+
 
 
 ### cmake
@@ -50,7 +58,7 @@ cmake:
         MinGW Makefiles:
         Unix Makefiles:
     -P: # 运行cmake脚本
-    -S: # 指定源文件目录 CMakeLists.txt所在目录
+    -S: # 指定source源文件目录 CMakeLists.txt所在目录
     --build: # 执行构建，生成可执行文件
         -j: # 多线程
         --target: # 指定目标
@@ -107,6 +115,8 @@ CMakeLists.txt:
         PATH:
             IS_ABSOLUTE:
         STREQUAL:
+    FetchContent_Declare(): # 下载第三方源码
+    FetchContent_MakeAvailable(): # 
     add_compile_options():
     add_custom_command(): # 添加、执行自定义命令、脚本
         COMMAND: # 自定义命令，执行的命令
@@ -199,15 +209,19 @@ CMakeLists.txt:
         InstallRequiredSystemLibraries:
     include_directories(): # 引入头文件目录，默认对所有目标可见
     install(): # 安装，生成目标文件移动
+        TARGETS: # 配置安装的CMake目标（库或可执行文件）
+            EXPORT: # 导出模块.cmake文件，生成一个 CMake target 导出文件，用于 find_package 识别库
+            ARCHIVE: # 静态库 (.a 或 .lib) 安装目录
+            LIBRARY: # 动态库 (.so / .dll / .dylib)安装目录
+            RUNTIME: # 可执行程序安装目录
+            INCLUDES: # 头文件安装目录
+                DESTINATION: # 安装的目标目录
+        DIRECTORY: # 文件拷贝
         CODE: # 执行自定义cmake命令
         COMPONENT:
-        DESTINATION: # 安装的目标目录
-        DIRECTORY: # 想要安装的目录
-        EXPORT: # 导出模块.cmake文件
         FILE:
         FILES: # 要安装的具体文件，文件移动
         PERMISSIONS: # 设置文件权限
-        TARGETS: # 想要安装的CMake目标（例如，库或可执行文件）
     link_directories(): # 库文件目录，默认对所有目标可见
     list(): # 列表操作
         APPEND: # 追加
@@ -386,6 +400,26 @@ endif()
 
 生成Config.cmake需要模板文件
 
+
+
+#### CMake Module
+```yaml
+CMAKE_INSTALL_PREFIX:
+    /include:
+        /libA:
+            xxx.h:
+        /libB:
+            xxx.h:
+    /lib:
+        /cmake:
+            /<PackageName>: # 包下的三个核心cmake文件
+                <PackageName>.cmake: # 告诉 CMake 如何导入你的库，find_package使用，include导入targets.cmake文件
+                <PackageName>Version.cmake: # 记录库版本信息，方便 find_package 做版本检查
+                <PackageName>Targets.cmake: # 导出库 target 的实际信息(库文件路径、依赖的编译选项、头文件路径)
+        xxx.a:
+```
+
+
 #### CMake Module Find
 ```bash
 # FindMyLibrary.cmake
@@ -448,35 +482,33 @@ endif()
 生成器表达式变量，用于简化条件判断
 生成阶段执行
 
+#### #cmakedefine
+
+`#define`扩展，对于0值、OFF值、undefined值不会生成定义
 
 
 ### CMake Function
 
-#### #cmakedefine
-
-`#define`扩展，对于0值、OFF值、undefined值不会生成定义
 
 #### configure_file()
 
 
 #### find_package()
 
+CMake 模块包括两种常见形式：
+- Find模块 `Find<PackageName>.cmake`，适用于不使用 CMake 构建的第三方库。
+- Config模块 `<PackageName>Config.cmake`，适用于使用 CMake 构建并支持 CMake 配置的库。
 
-支持Module、Config两种模式
-- FindXxx.cmake
-- XxxConfig.cmake
-
-
-模块查找成功自动设置变量：
-- PackageName_FOUND：找到了就是True,没找到就是未设定
-- PackageName_INCLUDE_DIR：即头文件目录
-- PackageName_LIBRARY：即库文件
 
 模块搜索路径：
-- PackageName_ROOT
-- PackageName_DIR
+- `<PackageName>_ROOT`
+- `<PackageName>_DIR`
 - CMAKE_PREFIX_PATH: cmake模块搜索路径前缀
 
+模块查找成功自动设置变量：
+- `<PackageName>_FOUND`：找到了就是True,没找到就是未设定
+- `<PackageName>_INCLUDE_DIR`：即头文件目录
+- `<PackageName>_LIBRARY`：即库文件
 
 
 Config.cmake、ConfigVersion.cmake
@@ -487,19 +519,13 @@ XXX_DIR模块路径
 查找和配置外部依赖库流程：
 - 用户定义的路径：CMAKE_PREFIX_PATH
 - CMake内建的模块：CMAKE_MODULE_PATH、例如FindBoost.cmake，FindSDL.cmake等
-- 配置文件：一些库提供了CMake配置文件（<LibraryName>Config.cmake）
+- 配置文件：一些库提供了CMake配置文件（`<LibraryName>Config.cmake`）
 - 系统默认路径
-
-`CMAKE_PREFIX_PATH`: 指定查找包路径
-`Find<PackageName>.cmake`
-`<PackageName>Config.cmake`
 
 基于`XXX_DIR`去寻找指定的XXX模块
 
 
-CMake 模块包括两种常见形式：
-- Find模块 `Find<PackageName>.cmake`，适用于不使用 CMake 构建的第三方库。
-- Config模块 `<PackageName>Config.cmake`，适用于使用 CMake 构建并支持 CMake 配置的库。
+
 
 
 
@@ -508,3 +534,15 @@ CMake 模块包括两种常见形式：
 函数创建
 
 
+
+
+### Extension
+
+
+#### vcpkg
+
+通过`CMAKE_TOOLCHAIN_FILE`变量指定vcpkg.cmake工具文件（find_package能查找vcpkg安装的第三方包）
+`cmake -B build -DCMAKE_TOOLCHAIN_FILE=[vcpkg_root]/scripts/buildsystems/vcpkg.cmake`
+
+
+#### conan

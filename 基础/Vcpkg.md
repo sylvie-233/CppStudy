@@ -46,11 +46,6 @@ vcpkg:
 ```
 
 
-#### cmake集成
-```c
-
-```
-
 
 ### vcpkg
 ```yaml
