@@ -11,7 +11,7 @@
 左值（Lvalue）：表示可以被取地址的对象，通常是可以在内存中持久存储的对象，如变量。
 右值（Rvalue）：表示临时的、无法取地址的对象，通常是一个临时对象或字面值
 
-RAII（Resource Acquisition Is Initialization）：通过对象的生命周期来管理资源，确保资源的正确获取和释放
+RAII（Resource Acquisition Is Initialization）：通过对象的生命周期来管理资源，确保资源的正确获取和释放（上下文管理）
 - 内存管理（std::unique_ptr, std::shared_ptr）
 - 文件处理（std::fstream）
 - 锁管理（std::lock_guard, std::unique_lock）
@@ -116,6 +116,41 @@ gdb:
     set:
     step:
     thread:
+```
+
+
+### mingw64
+```yaml
+mingw64:
+   /bin:
+   /etc:
+   /include:
+   /lib:
+   /libexec:
+   /licenses:
+   /opt:
+   /share:
+   build-info.txt:
+```
+
+
+### clangd
+
+C++ LSP语言服务
+
+
+#### clang
+
+LLVM旗下C++编译器
+
+
+### vscode
+
+
+#### c_cpp_properties.json
+```yaml
+c_cpp_properties.json:
+    
 ```
 
 
@@ -245,9 +280,9 @@ std:
             little:
             native:
         bit_cast(): # 按位强转
-        bit_ceil(): # 	返回 ≥x 的最小 2 的幂
+        bit_ceil(): # 返回 ≥x 的最小 2 的幂
         bit_floor(): # 返回 ≤x 的最大 2 的幂
-        bit_width(): # 	表示 x 用几位能表示（不含符号位）
+        bit_width(): # 表示 x 用几位能表示（不含符号位）
         byteswap(): # 交换字节顺序
         countl_one(): # 前导 1 的个数
         countl_zero(): # 前导 0 的个数
@@ -261,7 +296,7 @@ std:
         bitset: # 位集合，固定大小二进制位，重载位运算操作
             all(): # 判断所有位均为 1
             any(): # 判断是否有任意 1 位
-            count(): # 	返回 1 的位数
+            count(): # 返回 1 的位数
             flip(): # 翻转某一位
             none():
             reset(): # 将所有位清零
