@@ -15,9 +15,35 @@
 - `<PackageName>Targets.cmake`:
 
 
+
+- 没必要切到bulid目录，然后`cmake ..`，推荐使用`cmake -S . -B build`
+- set定义变量、`${var}`引用变量
+- add_subdirectory添加子cmake项目
+- 函数作用域PRIVAE私有(依赖模块不可见)、PUBLIC共有(依赖模块可见)
+- find_package查找第三方库，查询`<Package>Config.cmake`文件并执行
+- vscode CMake Tools插件会在build目录下自动生成 compile_commands.json 和配置 IntelliSense
+
+
 ### 项目结构
 ```yaml
-/build:
+/build: # MinGW Makefiles compile
+    ./cmake:
+    /CMakeFiles:
+        /3.26.3: # cmake版本
+        /app.dir:
+    /vcpkg_installed: # vcpkg安装的第三方包
+        /<triplets>: # 对应的平台
+            /bin:
+            /debug:
+            /include:
+            /lib:
+            /share:
+    cmake_install.cmake: # cmake --install安装此项目执行的脚本
+    CMakeCache.txt:
+    compile_commands.json:
+    Makefile:
+    vcpkg-manifest-install.log:
+/build: # visual studio compile
     /CmakeFiles:
         /xxx.dir: # 不同的target有不同的dir目录、makefile
     ALL_BUILD.vcxproj:
@@ -29,12 +55,27 @@
     XXX.vcxproj:
     XERO_CHECK.vcxproj.filters:
     XERO_CHECK.vcxproj.filters:
+CMakeLists.txt: # 核心配置文件
+CMakePresets.json: # 用户预设配置文件
 ```
 
 #### 安装目录
 ```yaml
 cmake:
     
+```
+
+#### cmake_install.cmake
+```yaml
+cmake_install.cmake:
+```
+
+
+
+#### settings.json
+```yaml
+settings.json:
+
 ```
 
 
@@ -59,20 +100,27 @@ cmake:
         Unix Makefiles:
     -P: # 运行cmake脚本
     -S: # 指定source源文件目录 CMakeLists.txt所在目录
-    --build: # 执行构建，生成可执行文件
+    --build: # 执行构建，生成可执行文件（用于替代make命令）
         -j: # 多线程
         --target: # 指定目标
     --help:
-    --install: # 安装执行，执行cmake_install.cmake安装脚本，依赖CMAKE_INSTALL_PREFIX作为安装根目录
-        --prefix: # 安装路径
+    --install: # 指定构建目录，查询cmake_install.cmake文件
+        --prefix: # 指定安装路径 CMAKE_INSTALL_PREFIX
+    --preset: # 生成配置文件 CMakePresets.json、使用指定的preset预设配置
     --version: # 版本
 ```
+
+#### cmake-gui
+
+cmake gui程序
 
 #### CMakeLists.txt
 ```yaml
 CMakeLists.txt:
     cmake_variables: # ${xxx} 内置变量
         BUILD_SHARED_LIBS: # 是否构建动态库
+        CMAKE_ARCHEIVE_OUTPUT_DIRECTORY: # 静态库文件输出目录
+        CMAKE_BINARY_DIR: # 输出目录
         CMAKE_BUILD_TYPE: # 构建类型
         CMAKE_COMMAND: # cmake命令
         CMAKE_CXX_STANDARD: # cpp语法版本
@@ -85,20 +133,21 @@ CMakeLists.txt:
         CMAKE_GENERATOR: # cmake生成器
         CMAKE_HOST_WIN32: # win32平台判断
         CMAKE_INSTALL_PREFIX: # install安装目录
+        CMAKE_LIBRARY_OUTPUT_DIRECTORY: # so文件输出目录
+        CMAKE_MODULE_PATH: # 模块搜索路径（给find_package使用）
         CMAKE_PREFIX_PATH:
         CMAKE_PROJECT_NAME: # 项目名
-        CMAKE_ARCHEIVE_OUTPUT_DIRECTORY: # 静态库文件输出目录
-        CMAKE_LIBRARY_OUTPUT_DIRECTORY: # so文件输出目录
-        CMAKE_MODULE_PATH: # 模块搜索路径
         CMAKE_RUNTIME_OUTPUT_DIRECTORY: # dll、exe二进制文件输出目录
-        CMAKE_TOOLCHAIN_FILE: # 工具链文件
+        CMAKE_SOURCE_DIR: # 源代码目录
         CPACK_RESOURCE_FILE_LICENSE:
         CPACK_SOURCE_GENERATOR: # 打包生成格式
             TGZ:
+        CMAKE_TOOLCHAIN_FILE: # 工具链文件
         EXECUTABLE_OUTPUT_PATH: # 可执行文件保存目录
         LIBRARY_OUTPUT_PATH: # 可执行文件保存目录
         MINGW: # mingw编译器判断
         PROJECT_BINARY_DIR: # 项目build二进制目录
+        PROJECT_NAME: # 项目名称
         PROJECT_SOURCE_DIR: # 项目根目录，CMakeLists.txt所在目录
         USE_MYMATH:
         XXX_DIR: # 第三方模块XXX的位置
@@ -316,9 +365,38 @@ CMakeLists.txt:
 #### CMakePresets.json
 ```yaml
 CMakePresets.json:
+    version:
+    cmakeMinimumRequired:
+    configurePresets:
+        name:
+        displayName:
+        inherits: # 配置继承
+        condition: # 条件触发
+        toolchainFile: # 第三方工具链集成
+        generator: # 生成器配置（makefile、ninja）
+        binaryDir:
+        installDir:
+        cacheVariables:
+            CMAKE_INSTALL_PREFIX:
+            CMAKE_C_COMPILER:
+            CMAKE_CXX_COMPILER:
+            CMAKE_BUILD_TYPE:
+    buildPresets: # make构建配置
+        configurePreset: # 引用configurePresets
+    testPresets:
+```
+
+CMake统一构建配置中心（简化cmake命令行配置）
+
+
+
+#### CMakeCache.txt
+```yaml
+CMakeCache.txt:
 
 ```
 
+cmake缓存变量
 
 
 ### ctest
@@ -339,6 +417,93 @@ cpack:
 
 
 ## 核心内容
+
+
+### Control Flow
+```yaml
+Control FLow: # cmake控制流程
+    block(): # 代码块定义
+        endblock():
+    foreach(): # for循环
+        IN:
+            ITEMS:
+            ZIP_LISTS:
+        RANGE:
+        ---
+        endforeach():
+    file():
+        GLOB:
+    function(): # 函数定义
+        ARGC:
+        ARGV:
+        ARG_N:
+        ---
+        return():
+        endfunction():
+    if(): # 条件判断
+        IN_LIST:
+        PATH_EQUAL: # 路径相等
+        STREQUAL: # 字符串相等
+        ---
+        elseif():
+        else():
+        endif():
+    list():
+        APPEND:
+        GET:
+        JOIN:
+        LENGTH: # 列表长度
+    macro(): # 宏定义
+        endmacro():
+    math():
+        EXPR:
+    set(): # 变量定义
+        CACHE: # 缓存变量定义
+        ---
+        unset():
+        option(): # 缓存变量定义（带有默认值的 BOOL 类型缓存变量）
+    string():
+        FIND:
+    while(): # while循环
+        endwhile():
+```
+
+cmake脚本控制流程
+
+
+#### Function
+
+自定义函数
+
+
+
+#### Generator Expression
+```yaml
+Generator Expression:
+    $<AND:expr1,expr2,...>: # 逻辑与
+    $<BOOL:expr>: # 将表达式转换为 0/1
+    $<C_COMPILER_ID:MSVC>: # 当前 C 编译器是 MSVC
+    $<CONFIG:Debug>: # 当前配置为 Debug 返回 1，否则 0
+    $<CONFIG:Release>: # 当前配置为 Release 返回 1，否则 0
+    $<CXX_COMPILER_ID:GNU>: # 当前 C++ 编译器是 GCC
+    $<IF:cond,true,false>: # 条件表达式
+    $<LENGTH:list>: # 列表长度
+    $<JOIN:list,sep>: # 将列表用分隔符连接成字符串
+    $<MAX:a,b>: # 数学操作
+    $<NOT:expr>: # 逻辑非
+    $<OR:expr1,expr2,...>: # 逻辑或
+    $<PLATFORM_ID:Windows>: # 平台是 Windows
+    $<STREQUAL:a,b>: # 字符串是否相等
+    $<TARGET_FILE:tgt>: # 获取目标文件路径
+    $<TARGET_LINKER_FILE:tgt>: # 获取链接器文件路径
+    $<TARGET_OBJECTS:tgt>: # 获取目标对象文件列表（object library）
+    $<TARGET_PROPERTY:tgt,prop>: # 获取目标 tgt 的属性 prop
+```
+
+生成器表达式
+生成器表达式是一种在 生成阶段（build system generation）动态计算值 的语法
+它允许你在 CMakeLists.txt 中为目标属性、编译选项、链接库等设置 条件化、依赖于配置、平台或目标 的值
+
 
 ### CMake File
 

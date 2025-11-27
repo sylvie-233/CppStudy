@@ -9,37 +9,78 @@ Conan 是用 Python 编写的，所以你可以使用 pip 安装 Conan
 `pip install conan`
 
 
+- cmake集成conan安装的第三方包：`include(${CMAKE_BINARY_DIR}/conan_toolchain.cmake OPTIONAL)`
+- 根据conanfile.txt安装第三方包：`conan build . --output-folder=build`
+
+
+
+
+## 项目结构
+```yaml
+项目结构:
+    /.vscode:
+    /bulid:
+    CMakeLists.txt:
+    conanfile.txt:
+```
+
+
 
 ### CONAN_USER_HOME
-Conan安装依赖缓存
+```yaml
+~/.conan2:
+    /extensions:
+        /plugins:
+            /compatibility:
+            profile.py:
+    /migrations:
+    /profiles:
+        default:
+    global.conf:
+    remotes.json:
+    settings.yml:
+    version.txt:
+```
+
+Conan 用户安装依赖配置、缓存
 - Windows：`C:\Users\<username>\.conan`
 - Linux/macOS：`~/.conan`
+
+
+#### profile/default
+```yaml
+profile/default:
+    settings:
+        arch:
+        build_type:
+        compiler:
+            version:
+        os:
 ```
-~/.conan
-├── data/          # 包含所有安装的库的数据文件
-│   └── <package_name>/
-│       └── <version>/
-│           └── <package_revision>/
-├── packages/      # 包含所有包的二进制文件（安装时下载的）
-│   └── <package_hash>/
-│       ├── bin/
-│       ├── include/
-│       ├── lib/
-│       └── share/
-└── conan.conf     # Conan 配置文件
-```
+
+默认环境配置
 
 
 
 ### conan
 ```yaml
 conan:
-    install:
+    --version:
+    config:
+        home: # 环境配置路径
+    install: # 安装第三方依赖
         --build:
         --profile:
-        --install-folder:
+        --install-folder: # 
+        --output-folder: # 指定输出文件目录
     profile:
-        detect:
+        detect: # 配置环境检测、创建
+            --name: # 指定配置环境名称
+        list: # 配置环境列表
+    remote:
+        add: # 添加镜像源
+        remove:
+        update: # 更新镜像源
     search:
     upload:
 ```
@@ -48,10 +89,13 @@ conan:
 #### conanfile.txt
 ```yaml
 conanfile.txt:
-    requires:
+    generators: # 工具生成
+        CMakeDeps:
+        CMakeToolchain:
+    requires: # 项目依赖
 ```
 
-项目配置文件
+C++项目配置文件
 
 
 #### conanbuildinfo.cmake
@@ -73,3 +117,8 @@ cmake集成conan构建
 ## 核心内容
 ```yaml
 ```
+
+
+### Profile
+
+conan不同编译器环境的配置文件
